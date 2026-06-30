@@ -8,8 +8,25 @@
 <link rel="preconnect" href="https://fonts.googleapis.com" />
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
 <link href="https://fonts.googleapis.com/css2?family=Merriweather:wght@700;900&family=Inter:wght@400;500;600;700&family=DM+Mono:wght@500&display=swap" rel="stylesheet" />
+
+<!-- Meta Pixel Code -->
+<script>
+!function(f,b,e,v,n,t,s){if(f.fbq)return;n=f.fbq=function(){n.callMethod?
+n.callMethod.apply(n,arguments):n.queue.push(arguments)};if(!f._fbq)f._fbq=n;
+n.push=n;n.loaded=!0;n.version='2.0';n.queue=[];t=b.createElement(e);t.async=!0;
+t.src=v;s=b.getElementsByTagName(e)[0];s.parentNode.insertBefore(t,s)}(window,
+document,'script','https://connect.facebook.net/en_US/fbevents.js');
+fbq('init','879134155809312');fbq('track','PageView');
+</script>
+<noscript><img height="1" width="1" style="display:none"
+src="https://www.facebook.com/tr?id=879134155809312&ev=PageView&noscript=1"/></noscript>
+<!-- End Meta Pixel Code -->
+
 <!-- =====================================================================
      SUPABASE REGISTER ENDPOINT — confirm this matches your deployed function
+     BOOKING CALENDAR — global calendar LLwTCyXGFK5YiJoc8wQz (see lib/content.ts)
+     HERO PHOTO — optional: drop a file named hero.jpg next to this HTML to
+     show a real photo. If it's absent, a branded stat card shows instead.
      ===================================================================== -->
 <style>
   :root{
@@ -26,13 +43,11 @@
   }
   a{color:inherit;}
   .wrap{max-width:1080px;margin:0 auto;padding:0 22px;}
-
   /* Nav */
   .nav{border-bottom:1px solid var(--line);background:rgba(0,0,0,.2);}
   .nav .wrap{display:flex;flex-wrap:wrap;gap:6px 16px;align-items:center;justify-content:space-between;padding:14px 22px;}
   .brand{font-weight:700;color:var(--cream);}
   .nav small{color:var(--muted);font-size:11px;letter-spacing:.02em;}
-
   /* Hero */
   .hero{position:relative;overflow:hidden;
     background:
@@ -54,14 +69,19 @@
      padding:16px 30px;border-radius:12px;text-decoration:none;font-size:17px;border:none;cursor:pointer;
      transition:transform .15s,background .15s;}
   .cta:hover{background:var(--gold2);transform:translateY(-1px);}
+  .cta.secondary{background:transparent;color:var(--gold2);border:1px solid var(--gold);}
+  .cta.secondary:hover{background:rgba(201,150,43,.12);}
   .cta-note{display:block;margin-top:10px;font-size:12px;color:var(--muted);}
-
-  /* IMAGE PLACEHOLDER box */
-  .img-slot{border:1.5px dashed var(--line);border-radius:var(--radius);
+  /* Hero visual — real photo if hero.jpg exists, else branded stat card */
+  .hero-img{width:100%;height:100%;min-height:300px;max-height:520px;object-fit:cover;border-radius:16px;display:block;border:1px solid var(--line);}
+  .hero-stat{border:1px solid var(--line);border-radius:var(--radius);
     background:linear-gradient(180deg,var(--navy2),var(--panel));
-    min-height:300px;display:flex;align-items:center;justify-content:center;text-align:center;padding:24px;color:var(--muted);}
-  .img-slot span{font-size:13px;max-width:240px;}
-
+    min-height:300px;display:flex;flex-direction:column;align-items:center;justify-content:center;
+    text-align:center;padding:40px 28px;gap:6px;}
+  .hero-stat .k{font-size:13px;font-weight:700;letter-spacing:.16em;text-transform:uppercase;color:var(--muted);margin:0;}
+  .hero-stat .v{font-family:'Merriweather',serif;font-weight:900;color:var(--gold2);font-size:clamp(46px,8vw,76px);line-height:1;margin:6px 0;}
+  .hero-stat .s{font-size:14px;color:var(--text);max-width:260px;margin:0;}
+  .hero-stat .badge{margin-top:18px;font-size:11px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--gold);border:1px solid var(--line);border-radius:999px;padding:7px 14px;}
   /* Form */
   .form-section{padding:56px 22px;}
   .card{background:linear-gradient(180deg,var(--navy2),var(--panel));border:1px solid var(--line);
@@ -89,11 +109,16 @@
   .submit:disabled{opacity:.6;cursor:not-allowed;}
   .err{display:none;color:#e06b5a;font-size:13px;margin-top:10px;}
   .disclaimer{font-size:11px;color:var(--muted);margin-top:16px;line-height:1.5;}
-
+  /* Talk / schedule a call */
+  .talk-section{padding:8px 22px 56px;}
+  .talk-card{background:linear-gradient(180deg,var(--navy2),var(--panel));border:1px solid var(--line);
+    border-radius:var(--radius);padding:34px 28px;max-width:640px;margin:0 auto;text-align:center;}
+  .talk-card .eyebrow{margin-bottom:10px;}
+  .talk-card h2{font-family:'Merriweather',serif;color:var(--cream);font-size:24px;margin:0 0 8px;}
+  .talk-card p.lead{color:var(--muted);margin:0 0 22px;}
   /* Success */
   .success{display:none;text-align:center;padding:20px 0;}
   .success h2{color:var(--green);}
-
   /* Footer */
   footer{border-top:1px solid var(--line);background:rgba(0,0,0,.25);padding:26px 22px;text-align:center;}
   footer p{font-size:12px;color:var(--muted);margin:0 0 8px;}
@@ -101,7 +126,6 @@
 </style>
 </head>
 <body>
-
   <!-- NAV -->
   <nav class="nav">
     <div class="wrap">
@@ -109,7 +133,6 @@
       <small>NMLS #2244351 &middot; Citywide NMLS #2611 &middot; HomeSmart &middot; Equal Housing Lender 🏠</small>
     </div>
   </nav>
-
   <!-- HERO -->
   <header class="hero">
     <div class="wrap">
@@ -125,17 +148,19 @@
         <a class="cta" href="#qualify">See What You Qualify For &rarr;</a>
         <span class="cta-note">Free &middot; no obligation &middot; takes about a minute</span>
       </div>
-
-      <!-- Hero image — save the provided photo as hero.jpg in this folder. -->
+      <!-- Hero photo (optional): drop hero.jpg next to this HTML. If it's missing,
+           the branded stat card below shows instead, so the hero never looks broken. -->
       <img src="hero.jpg" alt="A couple unlocking the front door of their new home"
-           onerror="this.style.display='none';this.nextElementSibling.style.display='flex';"
-           style="width:100%;height:100%;min-height:300px;max-height:520px;object-fit:cover;border-radius:16px;display:block;border:1px solid var(--line);" />
-      <div class="img-slot" style="display:none" aria-hidden="true">
-        <span>📷 Add <strong>hero.jpg</strong> to this folder to show the photo here.</span>
+           class="hero-img"
+           onerror="this.style.display='none';this.nextElementSibling.style.display='flex';" />
+      <div class="hero-stat" style="display:none" aria-hidden="true">
+        <p class="k">Cash to close, as little as</p>
+        <p class="v">$1,000</p>
+        <p class="s">with down payment assistance and seller-paid closing costs</p>
+        <span class="badge">See if you qualify &mdash; 60 seconds</span>
       </div>
     </div>
   </header>
-
   <!-- FORM -->
   <section class="form-section" id="qualify">
     <div class="card">
@@ -143,12 +168,10 @@
       <div id="formView">
         <h2>See what you may qualify for</h2>
         <p class="lead">Four quick questions. No credit pull, no commitment &mdash; just a clearer picture of your options.</p>
-
         <div class="q">
           <label class="qlabel">1. What state are you looking to buy in?</label>
           <select id="state"><option value="">Select your state…</option></select>
         </div>
-
         <div class="q">
           <label class="qlabel">2. Are you currently renting or do you own?</label>
           <div class="opts" data-field="residence">
@@ -156,7 +179,6 @@
             <button type="button" class="opt" data-val="own">I own</button>
           </div>
         </div>
-
         <div class="q">
           <label class="qlabel">3. How would you describe your credit?</label>
           <div class="opts" data-field="credit">
@@ -166,7 +188,6 @@
             <button type="button" class="opt" data-val="working">Still working on it</button>
           </div>
         </div>
-
         <div class="q">
           <label class="qlabel">4. What&rsquo;s your biggest concern about buying right now?</label>
           <div class="opts" data-field="concern">
@@ -176,7 +197,6 @@
             <button type="button" class="opt" data-val="not_sure">Not sure where to start</button>
           </div>
         </div>
-
         <div class="q grid2">
           <input type="text" id="firstName" placeholder="First name" autocomplete="given-name" />
           <input type="text" id="lastName" placeholder="Last name" autocomplete="family-name" />
@@ -185,18 +205,14 @@
           <input type="email" id="email" placeholder="Email" autocomplete="email" />
           <input type="tel" id="phone" placeholder="Phone" autocomplete="tel" />
         </div>
-
         <label class="consent">
           <input type="checkbox" id="consent" />
           <span>By submitting, I agree to be contacted by Scott Smith / Citywide Home Mortgage by phone, text, and email about my inquiry, including via automated technology. Consent is not a condition of any purchase. Message and data rates may apply; reply STOP to opt out.</span>
         </label>
-
         <button type="button" class="submit" id="submitBtn">See What You Qualify For &rarr;</button>
         <p class="err" id="err"></p>
-
         <p class="disclaimer">Down payment assistance programs vary by area and are subject to eligibility, income limits, and availability. Nothing here is a guarantee of assistance or a commitment to lend. Scott Smith NMLS #2244351 | Citywide Home Mortgage NMLS #2611 | Equal Housing Lender.</p>
       </div>
-
       <!-- SUCCESS VIEW -->
       <div id="successView" class="success">
         <h2>You&rsquo;re all set! 🎉</h2>
@@ -204,23 +220,31 @@
       </div>
     </div>
   </section>
-
+  <!-- TALK / SCHEDULE A CALL -->
+  <section class="talk-section" id="talk">
+    <div class="talk-card">
+      <p class="eyebrow">Optional Next Step</p>
+      <h2>Prefer to just talk it through?</h2>
+      <p class="lead">Grab a free 20-minute call and we&rsquo;ll look at your situation together &mdash; what help may be available, and the cleanest path to get there. No pressure, no pitch.</p>
+      <a class="cta" href="https://api.leadconnectorhq.com/widget/booking/LLwTCyXGFK5YiJoc8wQz"
+         target="_blank" rel="noopener"
+         onclick="if(window.fbq){fbq('track','Schedule',{content_name:'DPA Strategy Call'});}">Schedule a Free Call &rarr;</a>
+      <span class="cta-note">20 minutes &middot; no cost &middot; no obligation</span>
+    </div>
+  </section>
   <!-- FOOTER -->
   <footer>
     <p>smithapprovesme.com &middot; Scott Smith NMLS #2244351 &middot; Citywide Home Mortgage NMLS #2611 &middot; HomeSmart &middot; Equal Housing Lender 🏠</p>
     <p class="fine">This is an advertisement. Information is for educational purposes only and is not a commitment to lend, a guarantee of program eligibility, or financial advice. All loans subject to credit approval and underwriting. Programs and availability subject to change.</p>
   </footer>
-
 <script>
   var REGISTER_URL = "https://qfhfuesnjfuwfujhvgpa.supabase.co/functions/v1/hyper-handler";
   var SUPABASE_KEY = "sb_publishable_YnBBmClE9jpZMKN-OMuFWA_NB3oGOMv"; // public key — safe in the browser
   var PORTAL_DPA   = "https://portal.smithapprovesme.com/dpa";
-
   // Populate state dropdown
   var STATES = ["Alabama","Alaska","Arizona","Arkansas","California","Colorado","Connecticut","Delaware","District of Columbia","Florida","Georgia","Hawaii","Idaho","Illinois","Indiana","Iowa","Kansas","Kentucky","Louisiana","Maine","Maryland","Massachusetts","Michigan","Minnesota","Mississippi","Missouri","Montana","Nebraska","Nevada","New Hampshire","New Jersey","New Mexico","New York","North Carolina","North Dakota","Ohio","Oklahoma","Oregon","Pennsylvania","Rhode Island","South Carolina","South Dakota","Tennessee","Texas","Utah","Vermont","Virginia","Washington","West Virginia","Wisconsin","Wyoming"];
   var sel = document.getElementById('state');
   STATES.forEach(function(s){ var o=document.createElement('option'); o.value=s; o.textContent=s; sel.appendChild(o); });
-
   // Button-group single-select
   var picks = { residence:"", credit:"", concern:"" };
   document.querySelectorAll('.opts').forEach(function(group){
@@ -233,9 +257,7 @@
       });
     });
   });
-
   function showErr(msg){ var e=document.getElementById('err'); e.textContent=msg; e.style.display='block'; }
-
   document.getElementById('submitBtn').addEventListener('click', async function(){
     var first = document.getElementById('firstName').value.trim();
     var last  = document.getElementById('lastName').value.trim();
@@ -243,15 +265,12 @@
     var phone = document.getElementById('phone').value.trim();
     var state = document.getElementById('state').value;
     var consent = document.getElementById('consent').checked;
-
     if(!state){ return showErr('Please select your state.'); }
     if(!picks.residence || !picks.credit || !picks.concern){ return showErr('Please answer all four questions.'); }
     if(!first || !email || email.indexOf('@')<0){ return showErr('Please enter your name and a valid email.'); }
     if(!consent){ return showErr('Please check the box to agree to be contacted.'); }
-
     var btn = this; btn.disabled = true; btn.textContent = 'Checking your options…';
     document.getElementById('err').style.display='none';
-
     // Payload to the unified register Edge Function.
     // NOTE: state / residence / credit / concern should be forwarded by the
     // Edge Function to GHL custom fields + tags for Claude routing.
@@ -267,7 +286,6 @@
       concern: picks.concern,
       consent: true
     };
-
     try{
       var res = await fetch(REGISTER_URL, {
         method:'POST',
@@ -279,6 +297,8 @@
         body:JSON.stringify(payload)
       });
       if(!res.ok){ throw new Error('Registration failed'); }
+      // Meta: count the lead.
+      if(window.fbq){ fbq('track','Lead',{content_name:'DPA Qualify', content_category:'down_payment_assistance'}); }
       // Success
       document.getElementById('formView').style.display='none';
       document.getElementById('successView').style.display='block';
