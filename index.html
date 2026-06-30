@@ -213,7 +213,7 @@ src="https://www.facebook.com/tr?id=879134155809312&ev=PageView&noscript=1"/></n
           <input type="checkbox" id="consent" />
           <span>By submitting, I agree to be contacted by Scott Smith / Citywide Home Mortgage by phone, text, and email about my inquiry, including via automated technology. Consent is not a condition of any purchase. Message and data rates may apply; reply STOP to opt out.</span>
         </label>
-        <div class="cf-turnstile" data-sitekey="YOUR_TURNSTILE_SITE_KEY" data-theme="dark" style="margin:14px 0;"></div>
+        <div class="cf-turnstile" data-sitekey="0x4AAAAAADtjWzK3UFn5hjXO" data-theme="dark" style="margin:14px 0;"></div>
         <button type="button" class="submit" id="submitBtn">See What You Qualify For &rarr;</button>
         <p class="err" id="err"></p>
         <p class="disclaimer">Down payment assistance programs vary by area and are subject to eligibility, income limits, and availability. Nothing here is a guarantee of assistance or a commitment to lend. Scott Smith NMLS #2244351 | Citywide Home Mortgage NMLS #2611 | Equal Housing Lender.</p>
@@ -320,6 +320,48 @@ src="https://www.facebook.com/tr?id=879134155809312&ev=PageView&noscript=1"/></n
       showErr('Something went wrong. Please try again or call Scott directly.');
     }
   });
+</script>
+
+<!-- Buy & Sell with Confidence — AI chat widget -->
+<div id="bsc-chat"></div>
+<script>
+(function(){
+  var ENDPOINT = "https://qfhfuesnjfuwfujhvgpa.supabase.co/functions/v1/assistant-chat";
+  var SOURCE = "dpa";
+  var msgs = [{role:"assistant", content:"Hi! Have a question about buying or down payment help? Ask away."}];
+  var open=false, sending=false;
+  var root = document.getElementById('bsc-chat');
+  var css = document.createElement('style');
+  css.textContent = "#bsc-btn{position:fixed;bottom:20px;right:20px;z-index:99999;width:56px;height:56px;border-radius:50%;background:#c9962b;color:#101415;border:none;cursor:pointer;box-shadow:0 8px 24px rgba(0,0,0,.35);font-size:22px;}"+
+  "#bsc-panel{position:fixed;bottom:88px;right:20px;z-index:99999;width:min(380px,92vw);height:min(560px,75vh);background:#0b0f10;border:1px solid rgba(255,255,255,.12);border-radius:16px;box-shadow:0 16px 48px rgba(0,0,0,.5);display:none;flex-direction:column;overflow:hidden;font-family:Inter,system-ui,sans-serif;}"+
+  "#bsc-panel.open{display:flex;}#bsc-head{padding:14px 18px;border-bottom:1px solid rgba(255,255,255,.1);background:#101415;}"+
+  "#bsc-head .k{color:#c9962b;font-size:11px;font-weight:700;letter-spacing:.2em;text-transform:uppercase;}#bsc-head .t{color:#fff;font-size:14px;font-weight:700;margin-top:2px;}"+
+  "#bsc-msgs{flex:1;overflow-y:auto;padding:14px;display:flex;flex-direction:column;gap:10px;}"+
+  ".bsc-m{max-width:85%;padding:10px 14px;border-radius:16px;font-size:14px;line-height:1.5;white-space:pre-wrap;}"+
+  ".bsc-u{align-self:flex-end;background:#c9962b;color:#101415;}.bsc-a{align-self:flex-start;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);color:#e8eef6;}"+
+  "#bsc-foot{border-top:1px solid rgba(255,255,255,.1);padding:10px;}#bsc-row{display:flex;gap:8px;align-items:flex-end;}"+
+  "#bsc-in{flex:1;min-height:42px;max-height:110px;resize:none;border-radius:10px;border:1px solid rgba(255,255,255,.15);background:#101415;color:#fff;padding:10px;font-size:14px;font-family:inherit;outline:none;}"+
+  "#bsc-send{width:42px;height:42px;border:none;border-radius:10px;background:#c9962b;color:#101415;cursor:pointer;font-size:16px;}#bsc-send:disabled{opacity:.5;}"+
+  "#bsc-disc{font-size:10px;color:rgba(232,238,246,.4);margin:6px 2px 0;line-height:1.4;}";
+  document.head.appendChild(css);
+  root.innerHTML = '<button id="bsc-btn" aria-label="Chat">&#128172;</button>'+
+    '<div id="bsc-panel"><div id="bsc-head"><div class="k">Buy &amp; Sell with Confidence</div><div class="t">Ask me anything</div></div>'+
+    '<div id="bsc-msgs"></div><div id="bsc-foot"><div id="bsc-row"><textarea id="bsc-in" rows="1" placeholder="Type your question&hellip;"></textarea>'+
+    '<button id="bsc-send">&#10148;</button></div>'+
+    '<div id="bsc-disc">Educational only &mdash; not a loan approval, rate quote, or commitment to lend. NMLS #2244351 &middot; Equal Housing Opportunity.</div></div></div>';
+  var btn=document.getElementById('bsc-btn'),panel=document.getElementById('bsc-panel'),
+      msgsEl=document.getElementById('bsc-msgs'),inEl=document.getElementById('bsc-in'),sendEl=document.getElementById('bsc-send');
+  function render(){msgsEl.innerHTML='';msgs.forEach(function(m){var d=document.createElement('div');d.className='bsc-m '+(m.role==='user'?'bsc-u':'bsc-a');d.textContent=m.content;msgsEl.appendChild(d);});
+    if(sending){var t=document.createElement('div');t.className='bsc-m bsc-a';t.textContent='typing…';t.style.opacity=.6;msgsEl.appendChild(t);}msgsEl.scrollTop=msgsEl.scrollHeight;}
+  btn.onclick=function(){open=!open;panel.classList.toggle('open',open);btn.innerHTML=open?'&#10005;':'&#128172;';if(open)render();};
+  async function send(){var text=(inEl.value||'').trim();if(!text||sending)return;msgs.push({role:'user',content:text});inEl.value='';sending=true;render();
+    try{var res=await fetch(ENDPOINT,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({source:SOURCE,messages:msgs})});
+      var d=await res.json().catch(function(){return{};});msgs.push({role:'assistant',content:d.reply||'Sorry — please try again, or book a one-on-one with Scott.'});}
+    catch(e){msgs.push({role:'assistant',content:'Connection hiccup — please try again.'});}
+    sending=false;render();}
+  sendEl.onclick=send;
+  inEl.addEventListener('keydown',function(e){if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();send();}});
+})();
 </script>
 </body>
 </html>
