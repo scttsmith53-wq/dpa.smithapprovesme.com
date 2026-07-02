@@ -1,6 +1,9 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+<!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-6FYJ9YLVZD"></script>
+<script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','G-6FYJ9YLVZD');</script>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>You Don't Need $20,000 to Buy a Home | Scott Smith</title>
@@ -315,6 +318,7 @@ src="https://www.facebook.com/tr?id=879134155809312&ev=PageView&noscript=1"/></n
       if(!res.ok){ throw new Error('Registration failed'); }
       // Meta: count the lead.
       if(window.fbq){ fbq('track','Lead',{content_name:'DPA Qualify', content_category:'down_payment_assistance'}); }
+      if(window.gtag){ gtag('event','generate_lead',{method:'dpa_form'}); }
       // Success
       document.getElementById('formView').style.display='none';
       document.getElementById('successView').style.display='block';
