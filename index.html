@@ -314,7 +314,12 @@ src="https://www.facebook.com/tr?id=879134155809312&ev=PageView&noscript=1"/></n
       document.getElementById('successView').scrollIntoView({behavior:'smooth'});
       // Send them to their hub
       setTimeout(function(){
-        window.location.href = PORTAL_DPA + '?name=' + encodeURIComponent(first);
+        window.location.href = PORTAL_DPA
+          + '?email=' + encodeURIComponent(email)
+          + '&firstName=' + encodeURIComponent(first)
+          + '&lastName=' + encodeURIComponent(last)
+          + '&phone=' + encodeURIComponent(phone)
+          + '&source=dpa';
       }, 2200);
     }catch(e){
       btn.disabled=false; btn.textContent='See What You Qualify For →';
