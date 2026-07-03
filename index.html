@@ -138,6 +138,7 @@ src="https://www.facebook.com/tr?id=879134155809312&ev=PageView&noscript=1"/></n
     <div class="wrap">
       <span class="brand">Buy &amp; Sell with Confidence</span>
       <small>NMLS #2244351 &middot; Citywide NMLS #2611 &middot; HomeSmart &middot; Equal Housing Lender 🏠</small>
+      <a href="https://portal.smithapprovesme.com" style="margin-left:auto;white-space:nowrap;padding:7px 15px;border-radius:999px;border:1px solid rgba(201,150,43,.55);color:#c9962b;font-weight:600;font-size:13px;text-decoration:none;">Member Login</a>
     </div>
   </nav>
   <!-- HERO -->
@@ -219,6 +220,21 @@ src="https://www.facebook.com/tr?id=879134155809312&ev=PageView&noscript=1"/></n
           <input type="email" id="email" placeholder="Email" autocomplete="email" />
           <input type="tel" id="phone" placeholder="Phone" autocomplete="tel" />
         </div>
+        <div class="q">
+          <input type="text" id="referredBy" placeholder="Referred by (optional — who sent you?)" autocomplete="off" />
+        </div>
+        <div class="q">
+          <select id="referralChannel" style="width:100%;box-sizing:border-box;padding:13px 14px;border-radius:10px;border:1px solid rgba(255,255,255,.18);background:#101415;color:#fff;font-size:15px;font-family:inherit;">
+            <option value="">How did you hear about us?</option>
+            <option>Google search</option>
+            <option>Facebook or Instagram</option>
+            <option>Friend or family</option>
+            <option>Real estate agent</option>
+            <option>Another website</option>
+            <option>Zillow / Realtor.com</option>
+            <option>Other</option>
+          </select>
+        </div>
         <label class="consent">
           <input type="checkbox" id="consent" />
           <span>By submitting, I agree to be contacted by Scott Smith / Citywide Home Mortgage by phone, text, and email about my inquiry, including via automated technology. Consent is not a condition of any purchase. Message and data rates may apply; reply STOP to opt out.</span>
@@ -279,6 +295,8 @@ src="https://www.facebook.com/tr?id=879134155809312&ev=PageView&noscript=1"/></n
     var last  = document.getElementById('lastName').value.trim();
     var email = document.getElementById('email').value.trim();
     var phone = document.getElementById('phone').value.trim();
+    var referredBy = (document.getElementById('referredBy').value || '').trim();
+    var referralChannel = (document.getElementById('referralChannel').value || '').trim();
     var state = document.getElementById('state').value;
     var consent = document.getElementById('consent').checked;
     if(!state){ return showErr('Please select your state.'); }
@@ -298,6 +316,8 @@ src="https://www.facebook.com/tr?id=879134155809312&ev=PageView&noscript=1"/></n
       email: email, phone: phone,
       source: 'dpa',
       interests: ['down_payment_assistance', picks.concern],
+      referred_by: referredBy,
+      referral_channel: referralChannel,
       state: state,
       residence: picks.residence,
       credit: picks.credit,
