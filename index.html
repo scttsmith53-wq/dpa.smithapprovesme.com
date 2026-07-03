@@ -27,7 +27,6 @@ src="https://www.facebook.com/tr?id=879134155809312&ev=PageView&noscript=1"/></n
 
 <!-- Cloudflare Turnstile (bot protection). Replace data-sitekey below with your
      real Turnstile SITE key from Cloudflare → Turnstile. -->
-<script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
 
 <!-- =====================================================================
      SUPABASE REGISTER ENDPOINT — confirm this matches your deployed function
@@ -239,7 +238,6 @@ src="https://www.facebook.com/tr?id=879134155809312&ev=PageView&noscript=1"/></n
           <input type="checkbox" id="consent" />
           <span>By submitting, I agree to be contacted by Scott Smith / Citywide Home Mortgage by phone, text, and email about my inquiry, including via automated technology. Consent is not a condition of any purchase. Message and data rates may apply; reply STOP to opt out.</span>
         </label>
-        <div class="cf-turnstile" data-sitekey="0x4AAAAAADtjWzK3UFn5hjXO" data-theme="dark" style="margin:14px 0;"></div>
         <button type="button" class="submit" id="submitBtn">See What You Qualify For &rarr;</button>
         <p class="err" id="err"></p>
         <p class="disclaimer">Down payment assistance programs vary by area and are subject to eligibility, income limits, and availability. Nothing here is a guarantee of assistance or a commitment to lend. Scott Smith NMLS #2244351 | Citywide Home Mortgage NMLS #2611 | Equal Housing Lender.</p>
@@ -304,7 +302,6 @@ src="https://www.facebook.com/tr?id=879134155809312&ev=PageView&noscript=1"/></n
     if(!first || !email || email.indexOf('@')<0){ return showErr('Please enter your name and a valid email.'); }
     if(!consent){ return showErr('Please check the box to agree to be contacted.'); }
     var tsToken = (document.querySelector('[name="cf-turnstile-response"]') || {}).value || '';
-    if(!tsToken){ return showErr('Please complete the verification below.'); }
     var btn = this; btn.disabled = true; btn.textContent = 'Checking your options…';
     document.getElementById('err').style.display='none';
     // Payload to the unified register Edge Function.
