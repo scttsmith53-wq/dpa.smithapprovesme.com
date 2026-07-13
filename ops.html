@@ -212,7 +212,12 @@
         '<div style="margin-top:12px">' + (srcHtml || '<div class="dim">No leads in this window.</div>') + '</div>' +
         '<div class="note"><b>Financeable = credit 640+</b>, measured only against leads who were actually asked. ' +
         'A cheap lead who can\'t get a loan for a year isn\'t a cheap lead — it\'s a different product, and it ' +
-        'belongs in nurture, not on the phone. Only the DPA form asks about credit today.</div>' +
+        'belongs in nurture, not on the phone. Only the DPA form asks about credit today.' +
+        (L.duplicates_collapsed > 0
+          ? '<br><br>Counting <b>people, not form submissions</b>: ' + L.raw_events + ' submissions collapsed to ' +
+            '<b>' + L.total + ' unique leads</b> (' + L.duplicates_collapsed + ' resubmissions). This matches GHL.'
+          : '') +
+        '</div>' +
       '</div>' +
 
       '<div class="card"><h2>Bookings — bottom of funnel</h2>' +
