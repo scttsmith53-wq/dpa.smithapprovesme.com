@@ -25,6 +25,45 @@ fbq('init','879134155809312');fbq('track','PageView');
 src="https://www.facebook.com/tr?id=879134155809312&ev=PageView&noscript=1"/></noscript>
 <!-- End Meta Pixel Code -->
 
+<!-- Attribution capture: UTM params + click IDs + Meta cookies.
+     Persists for the session so the value survives the funnel.
+     Exposes window.getAttribution() for form + chat payloads.
+     _fbp / _fbc are required for Conversions API event matching later. -->
+<script>
+(function(){
+  var KEY = 'sm_attr';
+  function fromUrl(){
+    var p = new URLSearchParams(window.location.search), out = {};
+    ['utm_source','utm_medium','utm_campaign','utm_content','utm_term'].forEach(function(k){
+      var v = p.get(k); if (v) out[k] = v;
+    });
+    var fbclid = p.get('fbclid'); if (fbclid) out.fbclid = fbclid;
+    var gclid  = p.get('gclid');  if (gclid)  out.gclid  = gclid;
+    return out;
+  }
+  function cookie(n){
+    var m = document.cookie.match('(^|;)\\s*' + n + '\\s*=\\s*([^;]+)');
+    return m ? m.pop() : '';
+  }
+  var fresh = fromUrl(), stored = {};
+  try { stored = JSON.parse(sessionStorage.getItem(KEY) || '{}'); } catch(e){}
+  // A fresh ad click overwrites; otherwise keep what we already had.
+  var attr = Object.keys(fresh).length ? fresh : stored;
+  try { sessionStorage.setItem(KEY, JSON.stringify(attr)); } catch(e){}
+
+  window.getAttribution = function(){
+    var a = {};
+    Object.keys(attr).forEach(function(k){ a[k] = attr[k]; });
+    a.fbp = cookie('_fbp') || '';
+    a.fbc = cookie('_fbc') || '';
+    if (!a.fbc && a.fbclid) { a.fbc = 'fb.1.' + Date.now() + '.' + a.fbclid; }
+    a.landing_page = window.location.hostname + window.location.pathname;
+    a.referrer = document.referrer || '';
+    return a;
+  };
+})();
+</script>
+
 <!-- Cloudflare Turnstile (bot protection). Replace data-sitekey below with your
      real Turnstile SITE key from Cloudflare → Turnstile. -->
 
@@ -365,6 +404,18 @@ src="https://www.facebook.com/tr?id=879134155809312&ev=PageView&noscript=1"/></n
     // Payload to the unified register Edge Function.
     // NOTE: state / residence / credit / concern should be forwarded by the
     // Edge Function to GHL custom fields + tags for Claude routing.
+    // --- Lead scoring -------------------------------------------------
+    // Meta optimizes toward whatever event we hand it. Previously every Lead
+    // event was identical, so Meta bought the cheapest form-fill available —
+    // which is why this page produced mostly credit-rebuilding renters.
+    // We now send a score + value, and fire a separate QualifiedLead event
+    // for leads who are actually financeable in the near term.
+    var CREDIT_SCORE = { excellent: 4, good: 3, fair: 2, working: 1 };
+    var leadScore  = CREDIT_SCORE[picks.credit] || 1;
+    var leadValue  = { 4: 100, 3: 75, 2: 40, 1: 10 }[leadScore] || 10;
+    var isQualified = leadScore >= 2;               // 640+ credit
+    var attr = (window.getAttribution ? window.getAttribution() : {});
+
     var payload = {
       full_name: (first + ' ' + last).trim(),
       first_name: first, last_name: last,
@@ -377,6 +428,10 @@ src="https://www.facebook.com/tr?id=879134155809312&ev=PageView&noscript=1"/></n
       residence: picks.residence,
       credit: picks.credit,
       concern: picks.concern,
+      lead_score: leadScore,
+      lead_value: leadValue,
+      qualified: isQualified,
+      attribution: attr,
       consent: true,
       cf_turnstile_token: tsToken
     };
@@ -391,9 +446,33 @@ src="https://www.facebook.com/tr?id=879134155809312&ev=PageView&noscript=1"/></n
         body:JSON.stringify(payload)
       });
       if(!res.ok){ throw new Error('Registration failed'); }
-      // Meta: count the lead.
-      if(window.fbq){ fbq('track','Lead',{content_name:'DPA Qualify', content_category:'down_payment_assistance'}); }
-      if(window.gtag){ gtag('event','generate_lead',{method:'dpa_form'}); }
+      // Meta: count the lead — now WITH a value so Meta can tell a 720 credit
+      // lead apart from a credit-rebuilding one. Without this, Meta optimizes
+      // for the cheapest email address it can find.
+      if(window.fbq){
+        fbq('track','Lead',{
+          content_name: 'DPA Qualify',
+          content_category: 'down_payment_assistance',
+          value: leadValue,
+          currency: 'USD',
+          lead_score: leadScore,
+          credit_band: picks.credit,
+          residence: picks.residence
+        });
+        // Separate event for near-term-financeable leads (640+).
+        // Do NOT switch the campaign's optimization event to this until it has
+        // meaningful weekly volume — it will be far too sparse at first.
+        if (isQualified) {
+          fbq('trackCustom','QualifiedLead',{
+            content_name: 'DPA Qualify',
+            value: leadValue,
+            currency: 'USD',
+            lead_score: leadScore,
+            credit_band: picks.credit
+          });
+        }
+      }
+      if(window.gtag){ gtag('event','generate_lead',{method:'dpa_form', value: leadValue, lead_score: leadScore}); }
       // Success
       document.getElementById('formView').style.display='none';
       document.getElementById('successView').style.display='block';
