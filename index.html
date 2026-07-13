@@ -416,6 +416,10 @@ src="https://www.facebook.com/tr?id=879134155809312&ev=PageView&noscript=1"/></n
     var isQualified = leadScore >= 2;               // 640+ credit
     var attr = (window.getAttribution ? window.getAttribution() : {});
 
+    // Shared ID between the browser pixel and the server-side CAPI event.
+    // Without this, Meta counts the same lead twice.
+    var eventId = 'lead-' + Date.now() + '-' + Math.random().toString(36).slice(2, 10);
+
     var payload = {
       full_name: (first + ' ' + last).trim(),
       first_name: first, last_name: last,
@@ -431,6 +435,17 @@ src="https://www.facebook.com/tr?id=879134155809312&ev=PageView&noscript=1"/></n
       lead_score: leadScore,
       lead_value: leadValue,
       qualified: isQualified,
+      // TOP-LEVEL: hyper-handler reads body.fbp / body.fbc / body.event_id.
+      // Do not nest these — the backend will not find them.
+      event_id: eventId,
+      fbp: attr.fbp || '',
+      fbc: attr.fbc || '',
+      utm_source: attr.utm_source || '',
+      utm_medium: attr.utm_medium || '',
+      utm_campaign: attr.utm_campaign || '',
+      utm_content: attr.utm_content || '',
+      utm_term: attr.utm_term || '',
+      event_source_url: window.location.href,
       attribution: attr,
       consent: true,
       cf_turnstile_token: tsToken
@@ -450,6 +465,7 @@ src="https://www.facebook.com/tr?id=879134155809312&ev=PageView&noscript=1"/></n
       // lead apart from a credit-rebuilding one. Without this, Meta optimizes
       // for the cheapest email address it can find.
       if(window.fbq){
+        // eventID must match the server-side CAPI event_id or Meta double-counts.
         fbq('track','Lead',{
           content_name: 'DPA Qualify',
           content_category: 'down_payment_assistance',
@@ -458,7 +474,7 @@ src="https://www.facebook.com/tr?id=879134155809312&ev=PageView&noscript=1"/></n
           lead_score: leadScore,
           credit_band: picks.credit,
           residence: picks.residence
-        });
+        }, { eventID: eventId });
         // Separate event for near-term-financeable leads (640+).
         // Do NOT switch the campaign's optimization event to this until it has
         // meaningful weekly volume — it will be far too sparse at first.
@@ -469,7 +485,7 @@ src="https://www.facebook.com/tr?id=879134155809312&ev=PageView&noscript=1"/></n
             currency: 'USD',
             lead_score: leadScore,
             credit_band: picks.credit
-          });
+          }, { eventID: eventId + '-q' });
         }
       }
       if(window.gtag){ gtag('event','generate_lead',{method:'dpa_form', value: leadValue, lead_score: leadScore}); }
