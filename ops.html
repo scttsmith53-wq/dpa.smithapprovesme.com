@@ -1,0 +1,265 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black">
+<meta name="theme-color" content="#0b0f10">
+<meta name="robots" content="noindex, nofollow">
+<title>Ads Command · Scott Smith</title>
+<!--
+  Scott's ads command centre.
+
+  WHY THIS FILE LIVES HERE AND NOT IN SUPABASE:
+  Supabase forces Content-Type: text/plain on every edge-function response (a
+  security measure so nobody can host arbitrary HTML on the supabase.co domain).
+  A server-rendered dashboard therefore displayed as raw source code. GitHub
+  Pages serves real text/html, so the PAGE lives here and the DATA comes from
+  the `ads-dashboard` edge function as JSON.
+
+  The ?key= in the URL is the password. It is checked server-side; without it
+  the API returns 401 and this page shows nothing. Do not share the link.
+-->
+<style>
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{background:#0b0f10;color:#e8eef6;font:15px/1.5 -apple-system,BlinkMacSystemFont,"Segoe UI",Inter,Roboto,sans-serif;padding:16px 14px 56px;max-width:760px;margin:0 auto;-webkit-font-smoothing:antialiased}
+  h1{font-size:19px;letter-spacing:-.01em}
+  .sub{color:#8b97a8;font-size:12px;margin-top:2px}
+  .card{background:#101415;border:1px solid rgba(255,255,255,.08);border-radius:14px;padding:14px;margin-top:14px}
+  .card h2{font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:#c9962b;margin-bottom:10px;font-weight:700}
+  .kpis{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+  .kpi{background:rgba(255,255,255,.03);border-radius:10px;padding:11px 8px;text-align:center}
+  .kpi .v{font-size:20px;font-weight:700;letter-spacing:-.02em}
+  .kpi .l{font-size:10px;color:#8b97a8;text-transform:uppercase;letter-spacing:.06em;margin-top:3px}
+  table{width:100%;border-collapse:collapse;font-size:13px}
+  th{text-align:left;font-size:10px;text-transform:uppercase;letter-spacing:.08em;color:#8b97a8;padding:6px 4px;border-bottom:1px solid rgba(255,255,255,.08);font-weight:600}
+  td{padding:9px 4px;border-bottom:1px solid rgba(255,255,255,.05)}
+  tr:last-child td{border-bottom:none}
+  .num{text-align:right;font-variant-numeric:tabular-nums;white-space:nowrap}
+  .nm{max-width:150px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .good{color:#4ade80;font-weight:700}
+  .bad{color:#f87171;font-weight:700}
+  .dim{color:#8b97a8}
+  .src{padding:11px 0;border-bottom:1px solid rgba(255,255,255,.05)}
+  .src:last-child{border-bottom:none}
+  .srch{display:flex;justify-content:space-between;align-items:baseline}
+  .srch b{text-transform:uppercase;font-size:13px;letter-spacing:.04em}
+  .cnt{color:#8b97a8;font-size:12px}
+  .pills{margin-top:7px;display:flex;flex-wrap:wrap;gap:5px}
+  .pill{font-size:11px;padding:3px 9px;border-radius:99px;white-space:nowrap}
+  .pill.ok{background:rgba(74,222,128,.12);color:#4ade80;border:1px solid rgba(74,222,128,.25)}
+  .pill.no{background:rgba(248,113,113,.1);color:#f87171;border:1px solid rgba(248,113,113,.22)}
+  .pill.unk{background:rgba(255,255,255,.05);color:#8b97a8;border:1px solid rgba(255,255,255,.1)}
+  .fin{margin-top:7px;font-size:12px}
+  .row{display:flex;justify-content:space-between;align-items:center;padding:8px 0;font-size:13px;border-bottom:1px solid rgba(255,255,255,.05)}
+  .row:last-child{border-bottom:none}
+  .ok{color:#4ade80;font-weight:600}.no{color:#f87171;font-weight:600}.unk{color:#8b97a8;font-weight:600}
+  .warn{background:rgba(201,150,43,.1);border:1px solid rgba(201,150,43,.3);border-radius:10px;padding:11px;font-size:12px;color:#e8b95a;line-height:1.55}
+  .err{background:rgba(248,113,113,.1);border:1px solid rgba(248,113,113,.3);border-radius:10px;padding:11px;font-size:13px;color:#f87171}
+  .note{font-size:11px;color:#8b97a8;margin-top:10px;line-height:1.55}
+  .note.no{color:#f87171}
+  .tabs{display:flex;gap:6px;margin-top:11px}
+  .tab{flex:1;text-align:center;padding:8px;border-radius:8px;background:rgba(255,255,255,.04);color:#8b97a8;text-decoration:none;font-size:12px;font-weight:600;border:none;cursor:pointer;font-family:inherit}
+  .tab.on{background:#c9962b;color:#101415}
+  a{color:#c9962b}
+  .load{text-align:center;color:#8b97a8;padding:40px 0;font-size:13px}
+</style>
+</head>
+<body>
+
+<h1>Ads Command</h1>
+<div class="sub" id="sub">Loading…</div>
+<div class="tabs">
+  <button class="tab" data-d="7">7d</button>
+  <button class="tab on" data-d="14">14d</button>
+  <button class="tab" data-d="30">30d</button>
+</div>
+
+<div id="app"><div class="load">Loading…</div></div>
+
+<div class="note" style="text-align:center;margin-top:20px">
+  Add to Home Screen for one-tap access · <a href="#" id="refresh">Refresh</a>
+</div>
+
+<script>
+(function () {
+  var API = 'https://qfhfuesnjfuwfujhvgpa.supabase.co/functions/v1/ads-dashboard';
+
+  // The key travels in this page's own URL: ops.html?key=xxxx
+  // Nothing is fetched without it, and the API rejects a bad one with 401.
+  var KEY = new URLSearchParams(location.search).get('key') || '';
+  var days = Number(new URLSearchParams(location.search).get('days') || 14);
+
+  var app = document.getElementById('app');
+  var sub = document.getElementById('sub');
+
+  var esc = function (s) {
+    return String(s == null ? '' : s)
+      .replace(/&/g, '&amp;').replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+  };
+  var money = function (n) {
+    return '$' + Number(n).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+  };
+  var fmt = function (iso) {
+    if (!iso) return 'never';
+    try {
+      return new Date(iso).toLocaleString('en-US', {
+        timeZone: 'America/Denver', month: 'short', day: 'numeric',
+        hour: 'numeric', minute: '2-digit'
+      });
+    } catch (e) { return String(iso); }
+  };
+
+  function setTabs() {
+    Array.prototype.forEach.call(document.querySelectorAll('.tab'), function (t) {
+      t.classList.toggle('on', Number(t.dataset.d) === days);
+      t.onclick = function () {
+        days = Number(t.dataset.d);
+        history.replaceState(null, '', '?key=' + encodeURIComponent(KEY) + '&days=' + days);
+        setTabs();
+        load();
+      };
+    });
+  }
+
+  document.getElementById('refresh').onclick = function (e) { e.preventDefault(); load(); };
+
+  function render(d) {
+    var m = d.meta;
+    var L = d.leads;
+    var B = d.bookings;
+    var H = d.health;
+    var CL = d.credit_labels;
+    var COK = d.credit_ok;
+
+    var totalSpend = 0, totalLeads = 0;
+    m.campaigns.forEach(function (c) { totalSpend += c.spend; totalLeads += c.leads; });
+    var blended = totalLeads > 0 ? totalSpend / totalLeads : null;
+
+    // ---- Ad performance
+    var adHtml;
+    if (m.ok) {
+      var rows = m.campaigns.map(function (c) {
+        var cls = c.cpl === null ? '' : (blended !== null && c.cpl < blended ? 'good' : 'bad');
+        return '<tr><td class="nm">' + esc(c.name) + '</td>' +
+          '<td class="num">' + money(c.spend) + '</td>' +
+          '<td class="num">' + (c.leads || '—') + '</td>' +
+          '<td class="num ' + cls + '">' + (c.cpl === null ? '—' : money(c.cpl)) + '</td>' +
+          '<td class="num dim">' + c.ctr.toFixed(2) + '%</td></tr>';
+      }).join('');
+      adHtml =
+        '<div class="kpis">' +
+          '<div class="kpi"><div class="v">' + money(totalSpend) + '</div><div class="l">Spend</div></div>' +
+          '<div class="kpi"><div class="v">' + totalLeads + '</div><div class="l">Leads</div></div>' +
+          '<div class="kpi"><div class="v">' + (blended === null ? '—' : money(blended)) + '</div><div class="l">Blended CPL</div></div>' +
+        '</div>' +
+        '<table style="margin-top:12px"><tr><th>Campaign</th><th class="num">Spend</th><th class="num">Leads</th><th class="num">CPL</th><th class="num">CTR</th></tr>' +
+        (rows || '<tr><td colspan="5" class="dim">No spend in this window.</td></tr>') +
+        '</table><div class="note">Green CPL = beating your blended average. Red = dragging it up.</div>';
+    } else {
+      adHtml = '<div class="warn"><b>Can\'t read ad spend yet.</b><br><br>' + esc(m.error) + '<br><br>' +
+        '<b>Fix:</b> your CAPI token can <i>write</i> events but not <i>read</i> the ad account. ' +
+        'In Meta Business Settings create a System User token with <b>ads_read</b> on ad account 148751351, ' +
+        'then add it in Supabase as the secret <b>META_ADS_TOKEN</b>. This panel fills in automatically.</div>';
+    }
+
+    // ---- Lead quality
+    var srcHtml = L.by_source.map(function (s) {
+      var pills = Object.keys(s.credit).map(function (b) {
+        return '<span class="pill ' + (COK[b] ? 'ok' : 'no') + '">' + esc(CL[b]) + ': ' + s.credit[b] + '</span>';
+      }).join('');
+      if (!pills) pills = '<span class="pill unk">credit not asked on this form</span>';
+      var fin = s.financeable_pct === null ? '' :
+        '<div class="fin"><b>' + s.financeable_pct + '%</b> financeable now ' +
+        '<span class="dim">(' + s.financeable + ' of ' + s.profiled + ' who answered)</span></div>';
+      return '<div class="src"><div class="srch"><b>' + esc(s.source) + '</b>' +
+        '<span class="cnt">' + s.regs + ' leads</span></div>' +
+        '<div class="pills">' + pills + '</div>' + fin + '</div>';
+    }).join('');
+
+    var finCls = L.financeable_pct === null ? '' : (L.financeable_pct >= 40 ? 'good' : 'bad');
+
+    // ---- Health
+    var hLabel = H.capi_state === 'live' ? 'LIVE'
+      : H.capi_state === 'down' ? 'NOT FIRING' : "CAN'T READ";
+    var hCls = H.capi_state === 'live' ? 'ok' : H.capi_state === 'down' ? 'no' : 'unk';
+    var hNote = '';
+    if (H.capi_state === 'down') {
+      hNote = '<div class="note no"><b>Server events are not reaching Meta.</b> Meta is optimizing on ' +
+        'browser data alone — blind to iOS and ad-blocked traffic. This is the most expensive thing ' +
+        'that can be silently wrong.</div>';
+    } else if (H.capi_state === 'unknown') {
+      hNote = '<div class="note">Pixel timestamps need a token with <b>ads_read</b> (see above). ' +
+        'Falling back to our own database: <b>' + H.capi_sent + ' server event(s) confirmed sent</b> ' +
+        'in this window, so CAPI is working.</div>';
+    }
+    if (H.capi_failed > 0) {
+      hNote += '<div class="note no">Some CAPI calls FAILED — check the hyper-handler logs. Usually an expired token.</div>';
+    }
+
+    app.innerHTML =
+      '<div class="card"><h2>Ad Performance</h2>' + adHtml + '</div>' +
+
+      '<div class="card"><h2>Lead Quality — can they actually buy?</h2>' +
+        '<div class="kpis">' +
+          '<div class="kpi"><div class="v">' + L.total + '</div><div class="l">Leads</div></div>' +
+          '<div class="kpi"><div class="v ' + finCls + '">' +
+            (L.financeable_pct === null ? '—' : L.financeable_pct + '%') + '</div><div class="l">Financeable</div></div>' +
+          '<div class="kpi"><div class="v">' + B.booked + '</div><div class="l">Calls booked</div></div>' +
+        '</div>' +
+        '<div style="margin-top:12px">' + (srcHtml || '<div class="dim">No leads in this window.</div>') + '</div>' +
+        '<div class="note"><b>Financeable = credit 640+</b>, measured only against leads who were actually asked. ' +
+        'A cheap lead who can\'t get a loan for a year isn\'t a cheap lead — it\'s a different product, and it ' +
+        'belongs in nurture, not on the phone. Only the DPA form asks about credit today.</div>' +
+      '</div>' +
+
+      '<div class="card"><h2>Bookings — bottom of funnel</h2>' +
+        '<div class="row"><span>Strategy calls booked</span><b class="' + (B.booked ? 'ok' : '') + '">' + B.booked + '</b></div>' +
+        '<div class="row"><span>Cancelled / no-show</span><b class="' + (B.cancelled ? 'no' : 'dim') + '">' + B.cancelled + '</b></div>' +
+        '<div class="row"><span>Lead → booking rate</span><b>' + (B.rate_pct === null ? '—' : B.rate_pct + '%') + '</b></div>' +
+        (B.booked === 0 ? '<div class="note">Nothing here yet. Once the GHL appointment webhook is published, ' +
+          'this fills the moment someone books — and Meta gets told a booking is worth $250.</div>' : '') +
+      '</div>' +
+
+      '<div class="card"><h2>System Health</h2>' +
+        '<div class="row"><span>Conversions API (server)</span><b class="' + hCls + '">' + hLabel + '</b></div>' +
+        '<div class="row"><span>Last server event</span><b>' + (H.pixel_readable ? fmt(H.server_last) : '—') + '</b></div>' +
+        '<div class="row"><span>Last browser pixel</span><b>' + (H.pixel_readable ? fmt(H.browser_last) : '—') + '</b></div>' +
+        '<div class="row"><span>CAPI sent / failed</span><b><span class="ok">' + H.capi_sent + '</span> / ' +
+          '<span class="' + (H.capi_failed ? 'no' : 'dim') + '">' + H.capi_failed + '</span></b></div>' +
+        hNote +
+      '</div>';
+
+    sub.textContent = 'Last ' + d.days + ' days · updated ' + fmt(d.generated_at) + ' MT';
+  }
+
+  function load() {
+    if (!KEY) {
+      app.innerHTML = '<div class="err"><b>No access key.</b><br>This page needs <code>?key=…</code> in the URL. ' +
+        'Use the full bookmarked link.</div>';
+      sub.textContent = '';
+      return;
+    }
+    app.innerHTML = '<div class="load">Loading…</div>';
+    fetch(API + '?key=' + encodeURIComponent(KEY) + '&days=' + days, { cache: 'no-store' })
+      .then(function (r) {
+        if (r.status === 401) throw new Error('Access key rejected. Check the link.');
+        if (!r.ok) throw new Error('API returned ' + r.status);
+        return r.json();
+      })
+      .then(render)
+      .catch(function (e) {
+        app.innerHTML = '<div class="err"><b>Could not load.</b><br>' + esc(e.message) + '</div>';
+        sub.textContent = '';
+      });
+  }
+
+  setTabs();
+  load();
+})();
+</script>
+
+</body>
+</html>
