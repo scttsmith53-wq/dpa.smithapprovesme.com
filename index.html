@@ -36,10 +36,7 @@ fbq('init','879134155809312');fbq('track','PageView');
 src="https://www.facebook.com/tr?id=879134155809312&ev=PageView&noscript=1"/></noscript>
 <!-- End Meta Pixel Code -->
 
-<!-- Attribution capture: UTM params + click IDs + Meta cookies.
-     Persists for the session so the value survives the funnel.
-     Exposes window.getAttribution() for form + chat payloads.
-     _fbp / _fbc are required for Conversions API event matching later. -->
+<!-- Attribution capture: UTM params + click IDs + Meta cookies. -->
 <script>
 (function(){
   var KEY = 'sm_attr';
@@ -58,7 +55,6 @@ src="https://www.facebook.com/tr?id=879134155809312&ev=PageView&noscript=1"/></n
   }
   var fresh = fromUrl(), stored = {};
   try { stored = JSON.parse(sessionStorage.getItem(KEY) || '{}'); } catch(e){}
-  // A fresh ad click overwrites; otherwise keep what we already had.
   var attr = Object.keys(fresh).length ? fresh : stored;
   try { sessionStorage.setItem(KEY, JSON.stringify(attr)); } catch(e){}
 
@@ -75,15 +71,6 @@ src="https://www.facebook.com/tr?id=879134155809312&ev=PageView&noscript=1"/></n
 })();
 </script>
 
-<!-- Cloudflare Turnstile (bot protection). Replace data-sitekey below with your
-     real Turnstile SITE key from Cloudflare → Turnstile. -->
-
-<!-- =====================================================================
-     SUPABASE REGISTER ENDPOINT — confirm this matches your deployed function
-     BOOKING CALENDAR — personal calendar U3kW2nB0a5VMixUVbfUN, host: Scott (see lib/content.ts)
-     HERO PHOTO — hero-dpa.jpg sits next to index.html in the repo. If it's ever
-     absent, a branded stat card shows instead.
-     ===================================================================== -->
 <style>
   :root{
     --navy:#061426; --navy2:#0c2138; --panel:#0f273f;
@@ -93,483 +80,41 @@ src="https://www.facebook.com/tr?id=879134155809312&ev=PageView&noscript=1"/></n
   }
   *{box-sizing:border-box;}
   html,body{margin:0;}
-  body{
-    background:var(--navy); color:var(--text);
-    font-family:'Inter',system-ui,-apple-system,sans-serif; line-height:1.6;
-  }
-  a{color:inherit;}
-  .wrap{max-width:1080px;margin:0 auto;padding:0 22px;}
-  /* Nav */
+  body{background:var(--navy);color:var(--text);font-family:'Inter',system-ui,-apple-system,sans-serif;line-height:1.6;}
+  a{color:inherit;}.wrap{max-width:1080px;margin:0 auto;padding:0 22px;}
   .nav{border-bottom:1px solid var(--line);background:rgba(0,0,0,.2);}
   .nav .wrap{display:flex;flex-wrap:wrap;gap:6px 16px;align-items:center;justify-content:space-between;padding:14px 22px;}
-  .brand{font-weight:700;color:var(--cream);}
-  .nav small{color:var(--muted);font-size:11px;letter-spacing:.02em;}
-  /* Hero */
-  .hero{position:relative;overflow:hidden;
-    background:
-      radial-gradient(circle at 80% 0%, rgba(201,150,43,.14), transparent 40%),
-      radial-gradient(circle at 0% 100%, rgba(12,33,56,.9), transparent 55%),
-      linear-gradient(160deg,#071a30,#061426 70%);
-    border-bottom:1px solid var(--line);
-  }
-  .hero .wrap{display:grid;gap:36px;padding:56px 22px;align-items:center;}
-  @media(min-width:900px){.hero .wrap{grid-template-columns:1.1fr .9fr;}}
+  .hero{position:relative;overflow:hidden;background:radial-gradient(circle at 80% 0%, rgba(201,150,43,.14), transparent 40%),radial-gradient(circle at 0% 100%, rgba(12,33,56,.9), transparent 55%),linear-gradient(160deg,#071a30,#061426 70%);border-bottom:1px solid var(--line);}
+  .hero .wrap{display:grid;gap:36px;padding:56px 22px;align-items:center;}@media(min-width:900px){.hero .wrap{grid-template-columns:1.1fr .9fr;}}
   .eyebrow{color:var(--gold);font-size:12px;font-weight:700;letter-spacing:.2em;text-transform:uppercase;margin:0 0 14px;}
-  h1{font-family:'Merriweather',Georgia,serif;font-weight:900;color:var(--cream);
-     font-size:clamp(30px,5vw,52px);line-height:1.12;margin:0 0 16px;}
-  .sub{font-size:18px;color:var(--muted);max-width:560px;margin:0 0 24px;}
-  .points{display:grid;gap:12px;margin:0 0 28px;padding:0;list-style:none;}
-  .points li{display:flex;gap:12px;align-items:flex-start;font-weight:500;}
-  .points .dot{margin-top:7px;width:8px;height:8px;border-radius:50%;background:var(--gold);flex:none;}
-  .cta{display:inline-block;background:var(--gold);color:#1a1205;font-weight:700;
-     padding:16px 30px;border-radius:12px;text-decoration:none;font-size:17px;border:none;cursor:pointer;
-     transition:transform .15s,background .15s;}
-  .cta:hover{background:var(--gold2);transform:translateY(-1px);}
-  .cta.secondary{background:transparent;color:var(--gold2);border:1px solid var(--gold);}
-  .cta.secondary:hover{background:rgba(201,150,43,.12);}
-  .cta-note{display:block;margin-top:10px;font-size:12px;color:var(--muted);}
-  /* Hero visual — real photo if hero.jpg exists, else branded stat card */
-  .hero-img{width:100%;height:100%;min-height:300px;max-height:520px;object-fit:cover;border-radius:16px;display:block;border:1px solid var(--line);}
-  .hero-stat{border:1px solid var(--line);border-radius:var(--radius);
-    background:linear-gradient(180deg,var(--navy2),var(--panel));
-    min-height:300px;display:flex;flex-direction:column;align-items:center;justify-content:center;
-    text-align:center;padding:40px 28px;gap:6px;}
-  .hero-stat .k{font-size:13px;font-weight:700;letter-spacing:.16em;text-transform:uppercase;color:var(--muted);margin:0;}
-  .hero-stat .v{font-family:'Merriweather',serif;font-weight:900;color:var(--gold2);font-size:clamp(46px,8vw,76px);line-height:1;margin:6px 0;}
-  .hero-stat .s{font-size:14px;color:var(--text);max-width:260px;margin:0;}
-  .hero-stat .badge{margin-top:18px;font-size:11px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--gold);border:1px solid var(--line);border-radius:999px;padding:7px 14px;}
-  /* Form */
-  .form-section{padding:56px 22px;}
-  .card{background:linear-gradient(180deg,var(--navy2),var(--panel));border:1px solid var(--line);
-    border-radius:var(--radius);padding:28px;max-width:640px;margin:0 auto;}
-  .card h2{font-family:'Merriweather',serif;color:var(--cream);font-size:26px;margin:0 0 6px;}
-  .card .lead{color:var(--muted);margin:0 0 22px;}
-  .q{margin-bottom:22px;}
-  .q label.qlabel{display:block;font-size:13px;font-weight:700;color:var(--cream);margin-bottom:10px;}
-  .opts{display:flex;flex-wrap:wrap;gap:8px;}
-  .opt{background:var(--navy);border:1px solid var(--line);color:var(--text);border-radius:999px;
-    padding:10px 16px;font-size:14px;cursor:pointer;transition:.15s;}
-  .opt:hover{border-color:var(--gold);}
-  .opt.sel{background:rgba(201,150,43,.16);border-color:var(--gold);color:var(--gold2);font-weight:600;}
-  select,input[type=text],input[type=email],input[type=tel]{
-    width:100%;background:var(--navy);border:1px solid var(--line);color:var(--cream);
-    border-radius:10px;padding:13px 14px;font-size:15px;font-family:inherit;}
-  select:focus,input:focus{outline:none;border-color:var(--gold);}
-  .grid2{display:grid;gap:12px;}
-  @media(min-width:520px){.grid2{grid-template-columns:1fr 1fr;}}
-  .consent{display:flex;gap:10px;align-items:flex-start;margin:18px 0 6px;font-size:12px;color:var(--muted);line-height:1.5;}
-  .consent input{margin-top:3px;flex:none;}
-  .submit{width:100%;background:var(--gold);color:#1a1205;border:none;border-radius:12px;
-    padding:16px;font-size:16px;font-weight:700;cursor:pointer;margin-top:14px;}
-  .submit:hover{background:var(--gold2);}
-  .submit:disabled{opacity:.6;cursor:not-allowed;}
-  .err{display:none;color:#e06b5a;font-size:13px;margin-top:10px;}
-  .disclaimer{font-size:11px;color:var(--muted);margin-top:16px;line-height:1.5;}
-  /* Talk / schedule a call */
-  .talk-section{padding:8px 22px 56px;}
-  .talk-card{background:linear-gradient(180deg,var(--navy2),var(--panel));border:1px solid var(--line);
-    border-radius:var(--radius);padding:34px 28px;max-width:640px;margin:0 auto;text-align:center;}
-  .talk-card .eyebrow{margin-bottom:10px;}
-  .talk-card h2{font-family:'Merriweather',serif;color:var(--cream);font-size:24px;margin:0 0 8px;}
-  .talk-card p.lead{color:var(--muted);margin:0 0 22px;}
-  /* Success */
-  .success{display:none;text-align:center;padding:20px 0;}
-  .success h2{color:var(--green);}
-  /* Footer */
-  footer{border-top:1px solid var(--line);background:rgba(0,0,0,.25);padding:26px 22px;text-align:center;}
-  footer p{font-size:12px;color:var(--muted);margin:0 0 8px;}
-  footer .fine{font-size:11px;opacity:.8;max-width:760px;margin:0 auto;line-height:1.5;}
+  h1{font-family:'Merriweather',Georgia,serif;font-weight:900;color:var(--cream);font-size:clamp(30px,5vw,52px);line-height:1.12;margin:0 0 16px;}
+  .sub{font-size:18px;color:var(--muted);max-width:560px;margin:0 0 24px;}.points{display:grid;gap:12px;margin:0 0 28px;padding:0;list-style:none;}.points li{display:flex;gap:12px;align-items:flex-start;font-weight:500;}.points .dot{margin-top:7px;width:8px;height:8px;border-radius:50%;background:var(--gold);flex:none;}
+  .cta{display:inline-block;background:var(--gold);color:#1a1205;font-weight:700;padding:16px 30px;border-radius:12px;text-decoration:none;font-size:17px;border:none;cursor:pointer;transition:transform .15s,background .15s;}.cta:hover{background:var(--gold2);transform:translateY(-1px);}.cta-note{display:block;margin-top:10px;font-size:12px;color:var(--muted);}
+  .hero-img{width:100%;height:100%;min-height:300px;max-height:520px;object-fit:cover;border-radius:16px;display:block;border:1px solid var(--line);}.hero-stat{border:1px solid var(--line);border-radius:var(--radius);background:linear-gradient(180deg,var(--navy2),var(--panel));min-height:300px;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:40px 28px;gap:6px;}.hero-stat .k{font-size:13px;font-weight:700;letter-spacing:.16em;text-transform:uppercase;color:var(--muted);margin:0;}.hero-stat .v{font-family:'Merriweather',serif;font-weight:900;color:var(--gold2);font-size:clamp(46px,8vw,76px);line-height:1;margin:6px 0;}.hero-stat .s{font-size:14px;color:var(--text);max-width:260px;margin:0;}.hero-stat .badge{margin-top:18px;font-size:11px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--gold);border:1px solid var(--line);border-radius:999px;padding:7px 14px;}
+  .form-section{padding:56px 22px;}.card{background:linear-gradient(180deg,var(--navy2),var(--panel));border:1px solid var(--line);border-radius:var(--radius);padding:28px;max-width:640px;margin:0 auto;}.card h2{font-family:'Merriweather',serif;color:var(--cream);font-size:26px;margin:0 0 6px;}.card .lead{color:var(--muted);margin:0 0 22px;}.q{margin-bottom:22px;}.q label.qlabel{display:block;font-size:13px;font-weight:700;color:var(--cream);margin-bottom:10px;}.opts{display:flex;flex-wrap:wrap;gap:8px;}.opt{background:var(--navy);border:1px solid var(--line);color:var(--text);border-radius:999px;padding:10px 16px;font-size:14px;cursor:pointer;transition:.15s;}.opt:hover{border-color:var(--gold);}.opt.sel{background:rgba(201,150,43,.16);border-color:var(--gold);color:var(--gold2);font-weight:600;}
+  select,input[type=text],input[type=email],input[type=tel]{width:100%;background:var(--navy);border:1px solid var(--line);color:var(--cream);border-radius:10px;padding:13px 14px;font-size:15px;font-family:inherit;}select:focus,input:focus{outline:none;border-color:var(--gold);}.grid2{display:grid;gap:12px;}@media(min-width:520px){.grid2{grid-template-columns:1fr 1fr;}}.consent{display:flex;gap:10px;align-items:flex-start;margin:18px 0 6px;font-size:12px;color:var(--muted);line-height:1.5;}.consent input{margin-top:3px;flex:none;}.submit{width:100%;background:var(--gold);color:#1a1205;border:none;border-radius:12px;padding:16px;font-size:16px;font-weight:700;cursor:pointer;margin-top:14px;}.submit:hover{background:var(--gold2);}.submit:disabled{opacity:.6;cursor:not-allowed;}.err{display:none;color:#e06b5a;font-size:13px;margin-top:10px;}.disclaimer{font-size:11px;color:var(--muted);margin-top:16px;line-height:1.5;}
+  .talk-section{padding:8px 22px 56px;}.talk-card{background:linear-gradient(180deg,var(--navy2),var(--panel));border:1px solid var(--line);border-radius:var(--radius);padding:34px 28px;max-width:640px;margin:0 auto;text-align:center;}.talk-card .eyebrow{margin-bottom:10px;}.talk-card h2{font-family:'Merriweather',serif;color:var(--cream);font-size:24px;margin:0 0 8px;}.talk-card p.lead{color:var(--muted);margin:0 0 22px;}.success{display:none;text-align:center;padding:20px 0;}.success h2{color:var(--green);}
+  footer{border-top:1px solid var(--line);background:rgba(0,0,0,.25);padding:26px 22px;text-align:center;}footer p{font-size:12px;color:var(--muted);margin:0 0 8px;}footer .fine{font-size:11px;opacity:.8;max-width:900px;margin:0 auto;line-height:1.6;}
 </style>
 </head>
 <body>
-  <!-- NAV -->
-  <nav class="nav">
-    <div class="wrap">
-      <div style="display:flex;align-items:center;gap:11px;">
-        <img src="scott-headshot.jpg" alt="Scott Smith" style="width:40px;height:40px;border-radius:50%;object-fit:cover;object-position:center top;border:2px solid var(--gold);" />
-        <span style="display:flex;flex-direction:column;line-height:1.05;">
-          <span style="font-family:'Merriweather',Georgia,serif;font-weight:900;font-size:18px;color:var(--cream);">Buy <span style="color:var(--gold2);">&amp;</span> Sell with Confidence</span>
-          <span style="font-size:10.5px;color:var(--gold);letter-spacing:.16em;text-transform:uppercase;font-weight:700;margin-top:3px;">Scott Smith &middot; HomeSmart Realty</span>
-        </span>
-      </div>
-      <div style="display:flex;align-items:center;gap:9px;color:var(--muted);font-size:11px;">
-        <svg width="24" height="24" viewBox="0 0 32 32" fill="none" stroke="var(--gold2)" stroke-width="2.1" stroke-linejoin="round" stroke-linecap="round" role="img" aria-label="Equal Housing Opportunity"><path d="M4 15 L16 5 L28 15"/><path d="M7.5 13.5 V26 H24.5 V13.5"/><line x1="11.5" y1="18" x2="20.5" y2="18"/><line x1="11.5" y1="22" x2="20.5" y2="22"/></svg>
-        <span style="line-height:1.35;letter-spacing:.01em;">
-          <span style="color:var(--cream);font-weight:600;">Equal Housing Lender</span><br>
-          NMLS #2244351 &middot; Citywide #2611 &middot; HomeSmart
-        </span>
-      </div>
-      <a href="tel:+19705280874" style="margin-left:auto;white-space:nowrap;padding:7px 13px;border-radius:999px;border:1px solid rgba(201,150,43,.55);color:#c9962b;font-weight:600;font-size:13px;text-decoration:none;">Call (970) 528-0874</a>
-      <a href="https://portal.smithapprovesme.com" style="margin-left:10px;white-space:nowrap;padding:7px 15px;border-radius:999px;border:1px solid rgba(201,150,43,.55);color:#c9962b;font-weight:600;font-size:13px;text-decoration:none;">Member Login</a>
-    </div>
-  </nav>
-  <!-- HERO -->
-  <header class="hero">
-    <div class="wrap">
-      <div>
-        <p class="eyebrow">Down Payment Help</p>
-        <h1>You Don&rsquo;t Need $20,000 to Buy a Home.</h1>
-        <p class="sub">You&rsquo;ve been paying someone else&rsquo;s mortgage long enough. Many renters qualify for down payment help they never knew existed &mdash; let&rsquo;s find out what may be available in your area.</p>
-        <ul class="points">
-          <li><span class="dot"></span> Most buyers qualify with far less than they think.</li>
-          <li><span class="dot"></span> Your state has assistance programs most people never hear about.</li>
-          <li><span class="dot"></span> You could be closer than you realize &mdash; find out in 60 seconds.</li>
-        </ul>
-        <a class="cta" href="#qualify">See What You Qualify For &rarr;</a>
-        <span class="cta-note">Free &middot; no obligation &middot; takes about a minute</span>
-        <div style="margin-top:16px;">
-          <a href="#portal" style="display:inline-flex;align-items:center;gap:10px;background:rgba(201,150,43,.12);border:1px solid var(--gold);color:var(--gold2);font-weight:700;padding:12px 20px;border-radius:999px;text-decoration:none;font-size:15px;transition:.15s;" onmouseover="this.style.background='rgba(201,150,43,.22)'" onmouseout="this.style.background='rgba(201,150,43,.12)'">
-            <span style="background:var(--gold);color:#1a1205;font-size:11px;font-weight:800;padding:2px 9px;border-radius:999px;letter-spacing:.06em;">FREE</span>
-            Explore the Member Portal &rarr;
-          </a>
-        </div>
-      </div>
-      <!-- Hero photo: hero-dpa.jpg lives in the repo next to index.html. If it's ever
-           missing, the branded stat card below shows instead, so it never looks broken. -->
-      <img src="hero-dpa.jpg" alt="A couple unlocking the front door of their new home"
-           class="hero-img"
-           onerror="this.style.display='none';this.nextElementSibling.style.display='flex';" />
-      <div class="hero-stat" style="display:none" aria-hidden="true">
-        <p class="k">Cash to close, as little as</p>
-        <p class="v">$1,000</p>
-        <p class="s">with down payment assistance and seller-paid closing costs</p>
-        <span class="badge">See if you qualify &mdash; 60 seconds</span>
-      </div>
-    </div>
-  </header>
-  <!-- FORM -->
-  <section class="form-section" id="qualify">
-    <div class="card">
-      <!-- FORM VIEW -->
-      <!-- Social proof: rotating review + 5-star badge -->
-      <div style="max-width:560px;margin:0 auto 16px;padding:14px 18px;border:1px solid rgba(201,150,43,.35);border-radius:14px;background:#0a1526;text-align:center;">
-        <div style="display:flex;align-items:center;justify-content:center;gap:8px;font-size:13px;color:#c9962b;font-weight:700;"><span style="letter-spacing:2px;">★★★★★</span><span><strong>5.0</strong> · 25+ real estate client reviews</span></div>
-        <blockquote id="smTtQuote" style="margin:9px 0 5px;font-size:14px;line-height:1.5;color:#eef1f5;font-style:italic;transition:opacity .4s;min-height:42px;">&nbsp;</blockquote>
-        <div id="smTtName" style="font-size:12px;color:#c9962b;font-weight:700;transition:opacity .4s;">&nbsp;</div>
-      </div>
-      <script>(function(){var r=[["A true professional at every single level. 5 Stars +++","Mario B."],["Not your typical sales guy — he truly works for you.","Matt M."],["Above and beyond. Answered every question. TOP NOTCH!","Barry P."],["Educated, helpful, responsive — look no further.","Hannah L."],["Made the whole process so easy. He truly works for you.","Bridgit M."],["One of the best I've ever worked with. He'll do you right!","Reginald H."]];var i=0,q=document.getElementById("smTtQuote"),n=document.getElementById("smTtName");function s(){q.textContent="“"+r[i][0]+"”";n.textContent="— "+r[i][1];}s();setInterval(function(){q.style.opacity=0;n.style.opacity=0;setTimeout(function(){i=(i+1)%r.length;s();q.style.opacity=1;n.style.opacity=1;},400);},4500);})();</script>
-      <div id="formView">
-        <h2>See what you may qualify for</h2>
-        <p class="lead">Four quick questions. No credit pull, no commitment &mdash; just a clearer picture of your options.</p>
-        <div class="q">
-          <label class="qlabel">1. What state are you looking to buy in?</label>
-          <select id="state"><option value="">Select your state…</option></select>
-        </div>
-        <div class="q">
-          <label class="qlabel">2. Are you currently renting or do you own?</label>
-          <div class="opts" data-field="residence">
-            <button type="button" class="opt" data-val="renting">Renting</button>
-            <button type="button" class="opt" data-val="own">I own</button>
-          </div>
-        </div>
-        <div class="q">
-          <label class="qlabel">3. How would you describe your credit?</label>
-          <div class="opts" data-field="credit">
-            <button type="button" class="opt" data-val="excellent">Excellent (720+)</button>
-            <button type="button" class="opt" data-val="good">Good (680&ndash;719)</button>
-            <button type="button" class="opt" data-val="fair">Fair (640&ndash;679)</button>
-            <button type="button" class="opt" data-val="working">Still working on it</button>
-          </div>
-        </div>
-        <div class="q">
-          <label class="qlabel">4. What&rsquo;s your biggest concern about buying right now?</label>
-          <div class="opts" data-field="concern">
-            <button type="button" class="opt" data-val="down_payment">Down payment</button>
-            <button type="button" class="opt" data-val="monthly">Monthly payment</button>
-            <button type="button" class="opt" data-val="credit">Credit score</button>
-            <button type="button" class="opt" data-val="not_sure">Not sure where to start</button>
-          </div>
-        </div>
-        <div class="q grid2">
-          <input type="text" id="firstName" placeholder="First name" autocomplete="given-name" />
-          <input type="text" id="lastName" placeholder="Last name" autocomplete="family-name" />
-        </div>
-        <div class="q grid2">
-          <input type="email" id="email" placeholder="Email" autocomplete="email" />
-          <input type="tel" id="phone" placeholder="Phone" autocomplete="tel" />
-        </div>
-        <div class="q">
-          <input type="text" id="referredBy" placeholder="Referred by (optional — who sent you?)" autocomplete="off" />
-        </div>
-        <div class="q">
-          <select id="referralChannel" style="width:100%;box-sizing:border-box;padding:13px 14px;border-radius:10px;border:1px solid rgba(255,255,255,.18);background:#101415;color:#fff;font-size:15px;font-family:inherit;">
-            <option value="">How did you hear about us?</option>
-            <option>Google search</option>
-            <option>Facebook or Instagram</option>
-            <option>Friend or family</option>
-            <option>Real estate agent</option>
-            <option>Another website</option>
-            <option>Zillow / Realtor.com</option>
-            <option>Other</option>
-          </select>
-        </div>
-        <label class="consent">
-          <input type="checkbox" id="consent" />
-          <span>By submitting, I agree to be contacted by Scott Smith / Citywide Home Mortgage by phone, text, and email about my inquiry, including via automated technology. Consent is not a condition of any purchase. Message and data rates may apply; reply STOP to opt out.</span>
-        </label>
-        <button type="button" class="submit" id="submitBtn">See What You Qualify For &rarr;</button>
-        <p class="err" id="err"></p>
-        <p class="disclaimer">Down payment assistance programs vary by area and are subject to eligibility, income limits, and availability. Nothing here is a guarantee of assistance or a commitment to lend. Scott Smith NMLS #2244351 | Citywide Home Mortgage NMLS #2611 | Equal Housing Lender.</p>
-      </div>
-      <!-- SUCCESS VIEW -->
-      <div id="successView" class="success">
-        <h2>You&rsquo;re all set! 🎉</h2>
-        <p class="lead" id="successMsg">Check your email &mdash; we just sent your private link to the buyer hub. In the meantime, pick your next step below.</p>
-        <div style="display:flex;gap:12px;flex-wrap:wrap;justify-content:center;margin-top:22px;">
-          <a class="cta" href="https://api.leadconnectorhq.com/widget/booking/U3kW2nB0a5VMixUVbfUN">Book your free 15-min call &rarr;</a>
-          <a class="cta" href="https://portal.smithapprovesme.com/dpa" style="background:transparent;border:1px solid var(--gold);color:var(--gold);">Open my buyer hub</a>
-        </div>
-      </div>
-    </div>
-  </section>
-  <!-- FREE MEMBER PORTAL -->
-  <section id="portal" style="padding:8px 22px 40px;">
-    <div style="max-width:860px;margin:0 auto;background:linear-gradient(180deg,var(--navy2),var(--panel));border:1px solid var(--line);border-radius:var(--radius);padding:34px 28px;">
-      <p class="eyebrow" style="text-align:center;margin-bottom:8px;">Included Free When You Register</p>
-      <h2 style="font-family:'Merriweather',serif;color:var(--cream);font-size:clamp(22px,4vw,28px);margin:0 0 8px;text-align:center;">You also get the free Member Portal</h2>
-      <p style="text-align:center;max-width:580px;margin:0 auto 26px;color:var(--muted);">A private hub of tools and guides to help you buy with confidence &mdash; it unlocks the moment you finish your free 60-second check. No cost, no catch, no pressure.</p>
-      <div style="display:grid;gap:12px;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));">
-        <div style="display:flex;gap:12px;align-items:flex-start;background:var(--navy);border:1px solid var(--line);border-radius:12px;padding:14px 16px;">
-          <span style="color:var(--gold);font-size:17px;line-height:1.4;flex:none;">✓</span>
-          <div><div style="font-weight:700;color:var(--cream);font-size:14px;">Homebuyer calculators</div><div style="font-size:12.5px;color:var(--muted);margin-top:2px;">Payment, affordability &amp; the real cost of waiting</div></div>
-        </div>
-        <div style="display:flex;gap:12px;align-items:flex-start;background:var(--navy);border:1px solid var(--line);border-radius:12px;padding:14px 16px;">
-          <span style="color:var(--gold);font-size:17px;line-height:1.4;flex:none;">✓</span>
-          <div><div style="font-weight:700;color:var(--cream);font-size:14px;">Guide library</div><div style="font-size:12.5px;color:var(--muted);margin-top:2px;">Documents, credit, DPA, inspections &amp; pre-approval</div></div>
-        </div>
-        <div style="display:flex;gap:12px;align-items:flex-start;background:var(--navy);border:1px solid var(--line);border-radius:12px;padding:14px 16px;">
-          <span style="color:var(--gold);font-size:17px;line-height:1.4;flex:none;">✓</span>
-          <div><div style="font-weight:700;color:var(--cream);font-size:14px;">Credit-readiness center</div><div style="font-size:12.5px;color:var(--muted);margin-top:2px;">Simple habits to get mortgage-ready</div></div>
-        </div>
-        <div style="display:flex;gap:12px;align-items:flex-start;background:var(--navy);border:1px solid var(--line);border-radius:12px;padding:14px 16px;">
-          <span style="color:var(--gold);font-size:17px;line-height:1.4;flex:none;">✓</span>
-          <div><div style="font-weight:700;color:var(--cream);font-size:14px;">Buyer Roadmap</div><div style="font-size:12.5px;color:var(--muted);margin-top:2px;">Your step-by-step path from renting to keys</div></div>
-        </div>
-        <div style="display:flex;gap:12px;align-items:flex-start;background:var(--navy);border:1px solid var(--line);border-radius:12px;padding:14px 16px;">
-          <span style="color:var(--gold);font-size:17px;line-height:1.4;flex:none;">✓</span>
-          <div><div style="font-weight:700;color:var(--cream);font-size:14px;">Down payment assistance info</div><div style="font-size:12.5px;color:var(--muted);margin-top:2px;">Programs to explore and what to ask</div></div>
-        </div>
-        <div style="display:flex;gap:12px;align-items:flex-start;background:var(--navy);border:1px solid var(--line);border-radius:12px;padding:14px 16px;">
-          <span style="color:var(--gold);font-size:17px;line-height:1.4;flex:none;">✓</span>
-          <div><div style="font-weight:700;color:var(--cream);font-size:14px;">Live first-time buyer webinar</div><div style="font-size:12.5px;color:var(--muted);margin-top:2px;">Free class every Tuesday at 7pm MT</div></div>
-        </div>
-      </div>
-      <p style="text-align:center;margin:24px 0 0;font-size:13px;color:var(--gold2);font-weight:700;letter-spacing:.04em;">100% free &middot; no cost &middot; no obligation</p>
-      <div style="text-align:center;margin-top:16px;">
-        <a class="cta" href="#qualify">Get Free Access &rarr;</a>
-      </div>
-    </div>
-  </section>
-  <!-- TALK / SCHEDULE A CALL -->
-  <section class="talk-section" id="talk">
-    <div class="talk-card">
-      <p class="eyebrow">Optional Next Step</p>
-      <h2>Prefer to just talk it through?</h2>
-      <p class="lead">Grab a free 20-minute call and we&rsquo;ll look at your situation together &mdash; what help may be available, and the cleanest path to get there. No pressure, no pitch.</p>
-      <a class="cta" href="https://api.leadconnectorhq.com/widget/booking/U3kW2nB0a5VMixUVbfUN"
-         target="_blank" rel="noopener"
-         onclick="if(window.fbq){fbq('track','Schedule',{content_name:'DPA Strategy Call'});}">Schedule a Free Call &rarr;</a>
-      <span class="cta-note">20 minutes &middot; no cost &middot; no obligation</span>
-    </div>
-  </section>
-  <!-- FOOTER -->
-  <footer>
-    <p>smithapprovesme.com &middot; Scott Smith NMLS #2244351 &middot; Citywide Home Mortgage NMLS #2611 &middot; HomeSmart &middot; Equal Housing Lender 🏠</p>
-    <p class="fine">This is an advertisement. Information is for educational purposes only and is not a commitment to lend, a guarantee of program eligibility, or financial advice. All loans subject to credit approval and underwriting. Programs and availability subject to change.</p>
-    <p style="font-size:11px;margin-top:8px;"><a href="https://portal.smithapprovesme.com/privacy" style="color:#c9962b;">Privacy Policy</a></p>
-  </footer>
+<nav class="nav"><div class="wrap"><div style="display:flex;align-items:center;gap:11px;"><img src="scott-headshot.jpg" alt="Scott Smith" style="width:40px;height:40px;border-radius:50%;object-fit:cover;object-position:center top;border:2px solid var(--gold);" /><span style="display:flex;flex-direction:column;line-height:1.05;"><span style="font-family:'Merriweather',Georgia,serif;font-weight:900;font-size:18px;color:var(--cream);">Buy <span style="color:var(--gold2);">&amp;</span> Sell with Confidence</span><span style="font-size:10.5px;color:var(--gold);letter-spacing:.16em;text-transform:uppercase;font-weight:700;margin-top:3px;">Scott Smith &middot; HomeSmart Realty</span></span></div><div style="display:flex;align-items:center;gap:9px;color:var(--muted);font-size:11px;"><svg width="24" height="24" viewBox="0 0 32 32" fill="none" stroke="var(--gold2)" stroke-width="2.1" stroke-linejoin="round" stroke-linecap="round" role="img" aria-label="Equal Housing Opportunity"><path d="M4 15 L16 5 L28 15"/><path d="M7.5 13.5 V26 H24.5 V13.5"/><line x1="11.5" y1="18" x2="20.5" y2="18"/><line x1="11.5" y1="22" x2="20.5" y2="22"/></svg><span style="line-height:1.35;letter-spacing:.01em;"><span style="color:var(--cream);font-weight:600;">Equal Housing Lender</span><br>NMLS #2244351 &middot; Citywide #2611 &middot; HomeSmart</span></div><a href="tel:+17202527037" style="margin-left:auto;white-space:nowrap;padding:7px 13px;border-radius:999px;border:1px solid rgba(201,150,43,.55);color:#c9962b;font-weight:600;font-size:13px;text-decoration:none;">Call (720) 252-7037</a><a href="https://portal.smithapprovesme.com" style="margin-left:10px;white-space:nowrap;padding:7px 15px;border-radius:999px;border:1px solid rgba(201,150,43,.55);color:#c9962b;font-weight:600;font-size:13px;text-decoration:none;">Member Login</a></div></nav>
+<header class="hero"><div class="wrap"><div><p class="eyebrow">Down Payment Help</p><h1>You Don&rsquo;t Need $20,000 to Buy a Home.</h1><p class="sub">You&rsquo;ve been paying someone else&rsquo;s mortgage long enough. Many renters qualify for down payment help they never knew existed &mdash; let&rsquo;s find out what may be available in your area.</p><ul class="points"><li><span class="dot"></span> Most buyers qualify with far less than they think.</li><li><span class="dot"></span> Your state has assistance programs most people never hear about.</li><li><span class="dot"></span> You could be closer than you realize &mdash; find out in 60 seconds.</li></ul><a class="cta" href="#qualify">See What You Qualify For &rarr;</a><span class="cta-note">Free &middot; no obligation &middot; takes about a minute</span><div style="margin-top:16px;"><a href="#portal" style="display:inline-flex;align-items:center;gap:10px;background:rgba(201,150,43,.12);border:1px solid var(--gold);color:var(--gold2);font-weight:700;padding:12px 20px;border-radius:999px;text-decoration:none;font-size:15px;transition:.15s;"><span style="background:var(--gold);color:#1a1205;font-size:11px;font-weight:800;padding:2px 9px;border-radius:999px;letter-spacing:.06em;">FREE</span>Explore the Member Portal &rarr;</a></div></div><img src="hero-dpa.jpg" alt="A couple unlocking the front door of their new home" class="hero-img" onerror="this.style.display='none';this.nextElementSibling.style.display='flex';" /><div class="hero-stat" style="display:none" aria-hidden="true"><p class="k">Cash to close, as little as</p><p class="v">$1,000</p><p class="s">with down payment assistance and seller-paid closing costs</p><span class="badge">See if you qualify &mdash; 60 seconds</span></div></div></header>
+<section class="form-section" id="qualify"><div class="card"><div style="max-width:560px;margin:0 auto 16px;padding:14px 18px;border:1px solid rgba(201,150,43,.35);border-radius:14px;background:#0a1526;text-align:center;"><div style="display:flex;align-items:center;justify-content:center;gap:8px;font-size:13px;color:#c9962b;font-weight:700;"><span style="letter-spacing:2px;">★★★★★</span><span><strong>5.0</strong> · 25+ real estate client reviews</span></div><blockquote id="smTtQuote" style="margin:9px 0 5px;font-size:14px;line-height:1.5;color:#eef1f5;font-style:italic;transition:opacity .4s;min-height:42px;">&nbsp;</blockquote><div id="smTtName" style="font-size:12px;color:#c9962b;font-weight:700;transition:opacity .4s;">&nbsp;</div></div><script>(function(){var r=[["A true professional at every single level. 5 Stars +++","Mario B."],["Not your typical sales guy — he truly works for you.","Matt M."],["Above and beyond. Answered every question. TOP NOTCH!","Barry P."],["Educated, helpful, responsive — look no further.","Hannah L."],["Made the whole process so easy. He truly works for you.","Bridgit M."],["One of the best I've ever worked with. He'll do you right!","Reginald H."]];var i=0,q=document.getElementById("smTtQuote"),n=document.getElementById("smTtName");function s(){q.textContent="“"+r[i][0]+"”";n.textContent="— "+r[i][1];}s();setInterval(function(){q.style.opacity=0;n.style.opacity=0;setTimeout(function(){i=(i+1)%r.length;s();q.style.opacity=1;n.style.opacity=1;},400);},4500);})();</script><div id="formView"><h2>See what you may qualify for</h2><p class="lead">Four quick questions. No credit pull, no commitment &mdash; just a clearer picture of your options.</p><div class="q"><label class="qlabel">1. What state are you looking to buy in?</label><select id="state"><option value="">Select your state…</option></select></div><div class="q"><label class="qlabel">2. Are you currently renting or do you own?</label><div class="opts" data-field="residence"><button type="button" class="opt" data-val="renting">Renting</button><button type="button" class="opt" data-val="own">I own</button></div></div><div class="q"><label class="qlabel">3. How would you describe your credit?</label><div class="opts" data-field="credit"><button type="button" class="opt" data-val="excellent">Excellent (720+)</button><button type="button" class="opt" data-val="good">Good (680&ndash;719)</button><button type="button" class="opt" data-val="fair">Fair (640&ndash;679)</button><button type="button" class="opt" data-val="working">Still working on it</button></div></div><div class="q"><label class="qlabel">4. What&rsquo;s your biggest concern about buying right now?</label><div class="opts" data-field="concern"><button type="button" class="opt" data-val="down_payment">Down payment</button><button type="button" class="opt" data-val="monthly">Monthly payment</button><button type="button" class="opt" data-val="credit">Credit score</button><button type="button" class="opt" data-val="not_sure">Not sure where to start</button></div></div><div class="q grid2"><input type="text" id="firstName" placeholder="First name" autocomplete="given-name" /><input type="text" id="lastName" placeholder="Last name" autocomplete="family-name" /></div><div class="q grid2"><input type="email" id="email" placeholder="Email" autocomplete="email" /><input type="tel" id="phone" placeholder="Phone" autocomplete="tel" /></div><div class="q"><input type="text" id="referredBy" placeholder="Referred by (optional — who sent you?)" autocomplete="off" /></div><div class="q"><select id="referralChannel"><option value="">How did you hear about us?</option><option>Google search</option><option>Facebook or Instagram</option><option>Friend or family</option><option>Real estate agent</option><option>Another website</option><option>Zillow / Realtor.com</option><option>Other</option></select></div><label class="consent"><input type="checkbox" id="consent" /><span>By submitting, I agree to be contacted by Scott Smith / Citywide Home Mortgage by phone, text, and email about my inquiry, including via automated technology. Consent is not a condition of any purchase. Message and data rates may apply; reply STOP to opt out.</span></label><button type="button" class="submit" id="submitBtn">See What You Qualify For &rarr;</button><p class="err" id="err"></p><p class="disclaimer">Down payment assistance programs vary by area and are subject to eligibility, income limits, and availability. Nothing here is a guarantee of assistance or a commitment to lend.</p></div><div id="successView" class="success"><h2>You&rsquo;re all set! 🎉</h2><p class="lead" id="successMsg">Check your email &mdash; we just sent your private link to the buyer hub. In the meantime, pick your next step below.</p><div style="display:flex;gap:12px;flex-wrap:wrap;justify-content:center;margin-top:22px;"><a class="cta" href="https://api.leadconnectorhq.com/widget/booking/U3kW2nB0a5VMixUVbfUN">Book your free 15-min call &rarr;</a><a class="cta" href="https://portal.smithapprovesme.com/dpa" style="background:transparent;border:1px solid var(--gold);color:var(--gold);">Open my buyer hub</a></div></div></div></section>
+<section id="portal" style="padding:8px 22px 40px;"><div style="max-width:860px;margin:0 auto;background:linear-gradient(180deg,var(--navy2),var(--panel));border:1px solid var(--line);border-radius:var(--radius);padding:34px 28px;"><p class="eyebrow" style="text-align:center;margin-bottom:8px;">Included Free When You Register</p><h2 style="font-family:'Merriweather',serif;color:var(--cream);font-size:clamp(22px,4vw,28px);margin:0 0 8px;text-align:center;">You also get the free Member Portal</h2><p style="text-align:center;max-width:580px;margin:0 auto 26px;color:var(--muted);">A private hub of tools and guides to help you buy with confidence &mdash; it unlocks the moment you finish your free 60-second check. No cost, no catch, no pressure.</p><div style="display:grid;gap:12px;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));"><div style="display:flex;gap:12px;align-items:flex-start;background:var(--navy);border:1px solid var(--line);border-radius:12px;padding:14px 16px;"><span style="color:var(--gold);font-size:17px;line-height:1.4;flex:none;">✓</span><div><div style="font-weight:700;color:var(--cream);font-size:14px;">Homebuyer calculators</div><div style="font-size:12.5px;color:var(--muted);margin-top:2px;">Payment, affordability &amp; the real cost of waiting</div></div></div><div style="display:flex;gap:12px;align-items:flex-start;background:var(--navy);border:1px solid var(--line);border-radius:12px;padding:14px 16px;"><span style="color:var(--gold);font-size:17px;line-height:1.4;flex:none;">✓</span><div><div style="font-weight:700;color:var(--cream);font-size:14px;">Guide library</div><div style="font-size:12.5px;color:var(--muted);margin-top:2px;">Documents, credit, DPA, inspections &amp; pre-approval</div></div></div><div style="display:flex;gap:12px;align-items:flex-start;background:var(--navy);border:1px solid var(--line);border-radius:12px;padding:14px 16px;"><span style="color:var(--gold);font-size:17px;line-height:1.4;flex:none;">✓</span><div><div style="font-weight:700;color:var(--cream);font-size:14px;">Credit-readiness center</div><div style="font-size:12.5px;color:var(--muted);margin-top:2px;">Simple habits to get mortgage-ready</div></div></div><div style="display:flex;gap:12px;align-items:flex-start;background:var(--navy);border:1px solid var(--line);border-radius:12px;padding:14px 16px;"><span style="color:var(--gold);font-size:17px;line-height:1.4;flex:none;">✓</span><div><div style="font-weight:700;color:var(--cream);font-size:14px;">Buyer Roadmap</div><div style="font-size:12.5px;color:var(--muted);margin-top:2px;">Your step-by-step path from renting to keys</div></div></div><div style="display:flex;gap:12px;align-items:flex-start;background:var(--navy);border:1px solid var(--line);border-radius:12px;padding:14px 16px;"><span style="color:var(--gold);font-size:17px;line-height:1.4;flex:none;">✓</span><div><div style="font-weight:700;color:var(--cream);font-size:14px;">Down payment assistance info</div><div style="font-size:12.5px;color:var(--muted);margin-top:2px;">Programs to explore and what to ask</div></div></div><div style="display:flex;gap:12px;align-items:flex-start;background:var(--navy);border:1px solid var(--line);border-radius:12px;padding:14px 16px;"><span style="color:var(--gold);font-size:17px;line-height:1.4;flex:none;">✓</span><div><div style="font-weight:700;color:var(--cream);font-size:14px;">On-demand first-time buyer webinar</div><div style="font-size:12.5px;color:var(--muted);margin-top:2px;">Watch on your time, then use live Q&amp;A for questions</div></div></div></div><p style="text-align:center;margin:24px 0 0;font-size:13px;color:var(--gold2);font-weight:700;letter-spacing:.04em;">100% free &middot; no cost &middot; no obligation</p><div style="text-align:center;margin-top:16px;"><a class="cta" href="#qualify">Get Free Access &rarr;</a></div></div></section>
+<section class="talk-section" id="talk"><div class="talk-card"><p class="eyebrow">Optional Next Step</p><h2>Prefer to just talk it through?</h2><p class="lead">Grab a free 20-minute call and we&rsquo;ll look at your situation together &mdash; what help may be available, and the cleanest path to get there. No pressure, no pitch.</p><a class="cta" href="https://api.leadconnectorhq.com/widget/booking/U3kW2nB0a5VMixUVbfUN" target="_blank" rel="noopener" onclick="if(window.fbq){fbq('track','Schedule',{content_name:'DPA Strategy Call'});}">Schedule a Free Call &rarr;</a><span class="cta-note">20 minutes &middot; no cost &middot; no obligation</span></div></section>
+<footer><p>Scott Smith is licensed as both a Colorado real estate broker and a mortgage loan originator and may act in both capacities. You are not required to use Citywide Home Mortgage for financing in order to work with Scott as your real estate broker, or to use HomeSmart Realty for brokerage in order to obtain financing.</p><p>Scott Smith | Colorado Real Estate Broker License #100078434 (HomeSmart Realty, ER100079641) | Mortgage Loan Originator NMLS #2244351 | Citywide Home Mortgage NMLS #2611 | Equal Housing Lender</p><p class="fine">This is an advertisement. Information is for educational purposes only and is not a commitment to lend, a guarantee of program eligibility, or financial advice. All loans are subject to credit approval and underwriting. Down payment assistance programs are subject to eligibility requirements, income limits, property requirements, funding availability, and change.</p><p style="font-size:11px;margin-top:8px;"><a href="https://portal.smithapprovesme.com/privacy" target="_blank" rel="noopener" style="color:#c9962b;">Privacy Policy</a></p></footer>
 <script>
-  var REGISTER_URL = "https://qfhfuesnjfuwfujhvgpa.supabase.co/functions/v1/hyper-handler";
-  var SUPABASE_KEY = "sb_publishable_YnBBmClE9jpZMKN-OMuFWA_NB3oGOMv"; // public key — safe in the browser
-  var PORTAL_DPA   = "https://portal.smithapprovesme.com/dpa";
-  // Populate state dropdown
-  var STATES = ["Alabama","Alaska","Arizona","Arkansas","California","Colorado","Connecticut","Delaware","District of Columbia","Florida","Georgia","Hawaii","Idaho","Illinois","Indiana","Iowa","Kansas","Kentucky","Louisiana","Maine","Maryland","Massachusetts","Michigan","Minnesota","Mississippi","Missouri","Montana","Nebraska","Nevada","New Hampshire","New Jersey","New Mexico","New York","North Carolina","North Dakota","Ohio","Oklahoma","Oregon","Pennsylvania","Rhode Island","South Carolina","South Dakota","Tennessee","Texas","Utah","Vermont","Virginia","Washington","West Virginia","Wisconsin","Wyoming"];
-  var sel = document.getElementById('state');
-  STATES.forEach(function(s){ var o=document.createElement('option'); o.value=s; o.textContent=s; sel.appendChild(o); });
-  sel.value = "Colorado"; // default to Scott's primary market (buyer can change it)
-  // Button-group single-select
-  var picks = { residence:"", credit:"", concern:"" };
-  document.querySelectorAll('.opts').forEach(function(group){
-    var field = group.getAttribute('data-field');
-    group.querySelectorAll('.opt').forEach(function(btn){
-      btn.addEventListener('click', function(){
-        group.querySelectorAll('.opt').forEach(function(b){ b.classList.remove('sel'); });
-        btn.classList.add('sel');
-        picks[field] = btn.getAttribute('data-val');
-      });
-    });
-  });
-  function showErr(msg){ var e=document.getElementById('err'); e.textContent=msg; e.style.display='block'; }
-  document.getElementById('submitBtn').addEventListener('click', async function(){
-    var first = document.getElementById('firstName').value.trim();
-    var last  = document.getElementById('lastName').value.trim();
-    var email = document.getElementById('email').value.trim();
-    var phone = document.getElementById('phone').value.trim();
-    var referredBy = (document.getElementById('referredBy').value || '').trim();
-    var referralChannel = (document.getElementById('referralChannel').value || '').trim();
-    var state = document.getElementById('state').value;
-    var consent = document.getElementById('consent').checked;
-    if(!state){ return showErr('Please select your state.'); }
-    if(!picks.residence || !picks.credit || !picks.concern){ return showErr('Please answer all four questions.'); }
-    if(!first || !email || email.indexOf('@')<0){ return showErr('Please enter your name and a valid email.'); }
-    if(!consent){ return showErr('Please check the box to agree to be contacted.'); }
-    var tsToken = (document.querySelector('[name="cf-turnstile-response"]') || {}).value || '';
-    var btn = this; btn.disabled = true; btn.textContent = 'Checking your options…';
-    document.getElementById('err').style.display='none';
-    // Payload to the unified register Edge Function.
-    // NOTE: state / residence / credit / concern should be forwarded by the
-    // Edge Function to GHL custom fields + tags for Claude routing.
-    // --- Lead scoring -------------------------------------------------
-    // Meta optimizes toward whatever event we hand it. Previously every Lead
-    // event was identical, so Meta bought the cheapest form-fill available —
-    // which is why this page produced mostly credit-rebuilding renters.
-    // We now send a score + value, and fire a separate QualifiedLead event
-    // for leads who are actually financeable in the near term.
-    var CREDIT_SCORE = { excellent: 4, good: 3, fair: 2, working: 1 };
-    var leadScore  = CREDIT_SCORE[picks.credit] || 1;
-    var leadValue  = { 4: 100, 3: 75, 2: 40, 1: 10 }[leadScore] || 10;
-    var isQualified = leadScore >= 2;               // 640+ credit
-    var attr = (window.getAttribution ? window.getAttribution() : {});
-
-    // Shared ID between the browser pixel and the server-side CAPI event.
-    // Without this, Meta counts the same lead twice.
-    var eventId = 'lead-' + Date.now() + '-' + Math.random().toString(36).slice(2, 10);
-
-    var payload = {
-      full_name: (first + ' ' + last).trim(),
-      first_name: first, last_name: last,
-      email: email, phone: phone,
-      source: 'dpa',
-      interests: ['down_payment_assistance', picks.concern],
-      referred_by: referredBy,
-      referral_channel: referralChannel,
-      state: state,
-      residence: picks.residence,
-      credit: picks.credit,
-      concern: picks.concern,
-      lead_score: leadScore,
-      lead_value: leadValue,
-      qualified: isQualified,
-      // TOP-LEVEL: hyper-handler reads body.fbp / body.fbc / body.event_id.
-      // Do not nest these — the backend will not find them.
-      event_id: eventId,
-      fbp: attr.fbp || '',
-      fbc: attr.fbc || '',
-      utm_source: attr.utm_source || '',
-      utm_medium: attr.utm_medium || '',
-      utm_campaign: attr.utm_campaign || '',
-      utm_content: attr.utm_content || '',
-      utm_term: attr.utm_term || '',
-      event_source_url: window.location.href,
-      attribution: attr,
-      consent: true,
-      cf_turnstile_token: tsToken
-    };
-    try{
-      var res = await fetch(REGISTER_URL, {
-        method:'POST',
-        headers:{
-          'Content-Type':'application/json',
-          'apikey': SUPABASE_KEY,
-          'Authorization': 'Bearer ' + SUPABASE_KEY
-        },
-        body:JSON.stringify(payload)
-      });
-      if(!res.ok){ throw new Error('Registration failed'); }
-      // The register function returns { ok, magic_link, redirect }. The magic
-      // link signs them into the portal on the page matching this landing page.
-      var regOut = await res.json().catch(function(){ return null; });
-      // Meta: count the lead — now WITH a value so Meta can tell a 720 credit
-      // lead apart from a credit-rebuilding one. Without this, Meta optimizes
-      // for the cheapest email address it can find.
-      if(window.fbq){
-        // eventID must match the server-side CAPI event_id or Meta double-counts.
-        fbq('track','Lead',{
-          content_name: 'DPA Qualify',
-          content_category: 'down_payment_assistance',
-          value: leadValue,
-          currency: 'USD',
-          lead_score: leadScore,
-          credit_band: picks.credit,
-          residence: picks.residence
-        }, { eventID: eventId });
-        // Separate event for near-term-financeable leads (640+).
-        // Do NOT switch the campaign's optimization event to this until it has
-        // meaningful weekly volume — it will be far too sparse at first.
-        if (isQualified) {
-          fbq('trackCustom','QualifiedLead',{
-            content_name: 'DPA Qualify',
-            value: leadValue,
-            currency: 'USD',
-            lead_score: leadScore,
-            credit_band: picks.credit
-          }, { eventID: eventId + '-q' });
-        }
-      }
-      if(window.gtag){ gtag('event','generate_lead',{method:'dpa_form', value: leadValue, lead_score: leadScore}); }
-      // Success
-      document.getElementById('formView').style.display='none';
-      document.getElementById('successView').style.display='block';
-      document.getElementById('successView').scrollIntoView({behavior:'smooth'});
-      // 2026-08-25: was redirecting to profile.smithapprovesme.com, which has a
-      // dead TLS cert — every lead hit a browser security warning. Now we call the
-      // `register` edge function, which creates the Supabase account, upserts the
-      // profile, and returns a magic link straight to the matching portal page.
-      // No PII in the URL: only the one-time token travels.
-      if(regOut && regOut.magic_link){
-        // Hold the success view briefly so the booking CTA registers, then sign
-        // them into the portal. Only the one-time token travels in the URL.
-        setTimeout(function(){ window.location.href = regOut.magic_link; }, 2500);
-      }
-      // If magic_link is missing, fail soft: the lead stays on the success view
-      // with working "Book a call" and "Open my buyer hub" buttons. Never strand
-      // them on a blank page the way the old profile.smithapprovesme.com redirect did.
-    }catch(e){
-      btn.disabled=false; btn.textContent='See What You Qualify For →';
-      showErr('Something went wrong. Please try again or call Scott directly.');
-    }
-  });
+var REGISTER_URL="https://qfhfuesnjfuwfujhvgpa.supabase.co/functions/v1/hyper-handler";var SUPABASE_KEY="sb_publishable_YnBBmClE9jpZMKN-OMuFWA_NB3oGOMv";var PORTAL_DPA="https://portal.smithapprovesme.com/dpa";
+var STATES=["Alabama","Alaska","Arizona","Arkansas","California","Colorado","Connecticut","Delaware","District of Columbia","Florida","Georgia","Hawaii","Idaho","Illinois","Indiana","Iowa","Kansas","Kentucky","Louisiana","Maine","Maryland","Massachusetts","Michigan","Minnesota","Mississippi","Missouri","Montana","Nebraska","Nevada","New Hampshire","New Jersey","New Mexico","New York","North Carolina","North Dakota","Ohio","Oklahoma","Oregon","Pennsylvania","Rhode Island","South Carolina","South Dakota","Tennessee","Texas","Utah","Vermont","Virginia","Washington","West Virginia","Wisconsin","Wyoming"];var sel=document.getElementById('state');STATES.forEach(function(s){var o=document.createElement('option');o.value=s;o.textContent=s;sel.appendChild(o);});sel.value="Colorado";
+var picks={residence:"",credit:"",concern:""};document.querySelectorAll('.opts').forEach(function(group){var field=group.getAttribute('data-field');group.querySelectorAll('.opt').forEach(function(btn){btn.addEventListener('click',function(){group.querySelectorAll('.opt').forEach(function(b){b.classList.remove('sel');});btn.classList.add('sel');picks[field]=btn.getAttribute('data-val');});});});function showErr(msg){var e=document.getElementById('err');e.textContent=msg;e.style.display='block';}
+document.getElementById('submitBtn').addEventListener('click',async function(){var first=document.getElementById('firstName').value.trim();var last=document.getElementById('lastName').value.trim();var email=document.getElementById('email').value.trim();var phone=document.getElementById('phone').value.trim();var referredBy=(document.getElementById('referredBy').value||'').trim();var referralChannel=(document.getElementById('referralChannel').value||'').trim();var state=document.getElementById('state').value;var consent=document.getElementById('consent').checked;if(!state){return showErr('Please select your state.');}if(!picks.residence||!picks.credit||!picks.concern){return showErr('Please answer all four questions.');}if(!first||!email||email.indexOf('@')<0){return showErr('Please enter your name and a valid email.');}if(!consent){return showErr('Please check the box to agree to be contacted.');}var tsToken=(document.querySelector('[name="cf-turnstile-response"]')||{}).value||'';var btn=this;btn.disabled=true;btn.textContent='Checking your options…';document.getElementById('err').style.display='none';var CREDIT_SCORE={excellent:4,good:3,fair:2,working:1};var leadScore=CREDIT_SCORE[picks.credit]||1;var leadValue={4:100,3:75,2:40,1:10}[leadScore]||10;var isQualified=leadScore>=2;var attr=(window.getAttribution?window.getAttribution():{});var eventId='lead-'+Date.now()+'-'+Math.random().toString(36).slice(2,10);var payload={full_name:(first+' '+last).trim(),first_name:first,last_name:last,email:email,phone:phone,source:'dpa',interests:['down_payment_assistance',picks.concern],referred_by:referredBy,referral_channel:referralChannel,state:state,residence:picks.residence,credit:picks.credit,concern:picks.concern,lead_score:leadScore,lead_value:leadValue,qualified:isQualified,event_id:eventId,fbp:attr.fbp||'',fbc:attr.fbc||'',utm_source:attr.utm_source||'',utm_medium:attr.utm_medium||'',utm_campaign:attr.utm_campaign||'',utm_content:attr.utm_content||'',utm_term:attr.utm_term||'',event_source_url:window.location.href,attribution:attr,consent:true,cf_turnstile_token:tsToken};try{var res=await fetch(REGISTER_URL,{method:'POST',headers:{'Content-Type':'application/json','apikey':SUPABASE_KEY,'Authorization':'Bearer '+SUPABASE_KEY},body:JSON.stringify(payload)});if(!res.ok){throw new Error('Registration failed');}var regOut=await res.json().catch(function(){return null;});if(window.fbq){fbq('track','Lead',{content_name:'DPA Qualify',content_category:'down_payment_assistance',value:leadValue,currency:'USD',lead_score:leadScore,credit_band:picks.credit,residence:picks.residence},{eventID:eventId});if(isQualified){fbq('trackCustom','QualifiedLead',{content_name:'DPA Qualify',value:leadValue,currency:'USD',lead_score:leadScore,credit_band:picks.credit},{eventID:eventId+'-q'});}}if(window.gtag){gtag('event','generate_lead',{method:'dpa_form',value:leadValue,lead_score:leadScore});}document.getElementById('formView').style.display='none';document.getElementById('successView').style.display='block';document.getElementById('successView').scrollIntoView({behavior:'smooth'});if(regOut&&regOut.magic_link){setTimeout(function(){window.location.href=regOut.magic_link;},2500);}}catch(e){btn.disabled=false;btn.textContent='See What You Qualify For →';showErr('Something went wrong. Please try again or call Scott directly at 720-252-7037.');}});
 </script>
-
 <!-- Buy & Sell with Confidence — AI chat widget -->
 <div id="bsc-chat"></div>
 <script>
 (function(){
-  var ENDPOINT = "https://qfhfuesnjfuwfujhvgpa.supabase.co/functions/v1/assistant-chat";
-  var SOURCE = "dpa";
-  var msgs = [{role:"assistant", content:"Hi! Have a question about buying or down payment help? Ask away."}];
-  var open=false, sending=false;
-  var root = document.getElementById('bsc-chat');
-  var css = document.createElement('style');
-  css.textContent = "#bsc-btn{position:fixed;bottom:20px;right:20px;z-index:99999;width:56px;height:56px;border-radius:50%;background:#c9962b;color:#101415;border:none;cursor:pointer;box-shadow:0 8px 24px rgba(0,0,0,.35);font-size:22px;}"+
-  "#bsc-panel{position:fixed;bottom:88px;right:20px;z-index:99999;width:min(380px,92vw);height:min(560px,75vh);background:#0b0f10;border:1px solid rgba(255,255,255,.12);border-radius:16px;box-shadow:0 16px 48px rgba(0,0,0,.5);display:none;flex-direction:column;overflow:hidden;font-family:Inter,system-ui,sans-serif;}"+
-  "#bsc-panel.open{display:flex;}#bsc-head{padding:14px 18px;border-bottom:1px solid rgba(255,255,255,.1);background:#101415;}"+
-  "#bsc-head .k{color:#c9962b;font-size:11px;font-weight:700;letter-spacing:.2em;text-transform:uppercase;}#bsc-head .t{color:#fff;font-size:14px;font-weight:700;margin-top:2px;}"+
-  "#bsc-msgs{flex:1;overflow-y:auto;padding:14px;display:flex;flex-direction:column;gap:10px;}"+
-  ".bsc-m{max-width:85%;padding:10px 14px;border-radius:16px;font-size:14px;line-height:1.5;white-space:pre-wrap;}"+
-  ".bsc-u{align-self:flex-end;background:#c9962b;color:#101415;}.bsc-a{align-self:flex-start;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);color:#e8eef6;}"+
-  "#bsc-foot{border-top:1px solid rgba(255,255,255,.1);padding:10px;}#bsc-row{display:flex;gap:8px;align-items:flex-end;}"+
-  "#bsc-in{flex:1;min-height:42px;max-height:110px;resize:none;border-radius:10px;border:1px solid rgba(255,255,255,.15);background:#101415;color:#fff;padding:10px;font-size:14px;font-family:inherit;outline:none;}"+
-  "#bsc-send{width:42px;height:42px;border:none;border-radius:10px;background:#c9962b;color:#101415;cursor:pointer;font-size:16px;}#bsc-send:disabled{opacity:.5;}"+
-  "#bsc-disc{font-size:10px;color:rgba(232,238,246,.4);margin:6px 2px 0;line-height:1.4;}";
-  document.head.appendChild(css);
-  root.innerHTML = '<button id="bsc-btn" aria-label="Chat">&#128172;</button>'+
-    '<div id="bsc-panel"><div id="bsc-head"><div class="k">Buy &amp; Sell with Confidence</div><div class="t">Ask me anything</div></div>'+
-    '<div id="bsc-msgs"></div><div id="bsc-foot"><div id="bsc-row"><textarea id="bsc-in" rows="1" placeholder="Type your question&hellip;"></textarea>'+
-    '<button id="bsc-send">&#10148;</button></div>'+
-    '<div id="bsc-disc">Educational only &mdash; not a loan approval, rate quote, or commitment to lend. NMLS #2244351 &middot; Equal Housing Opportunity.</div></div></div>';
-  var btn=document.getElementById('bsc-btn'),panel=document.getElementById('bsc-panel'),
-      msgsEl=document.getElementById('bsc-msgs'),inEl=document.getElementById('bsc-in'),sendEl=document.getElementById('bsc-send');
-  function render(){msgsEl.innerHTML='';msgs.forEach(function(m){var d=document.createElement('div');d.className='bsc-m '+(m.role==='user'?'bsc-u':'bsc-a');d.textContent=m.content;msgsEl.appendChild(d);});
-    if(sending){var t=document.createElement('div');t.className='bsc-m bsc-a';t.textContent='typing…';t.style.opacity=.6;msgsEl.appendChild(t);}msgsEl.scrollTop=msgsEl.scrollHeight;}
-  btn.onclick=function(){open=!open;panel.classList.toggle('open',open);btn.innerHTML=open?'&#10005;':'&#128172;';if(open)render();};
-  async function send(){var text=(inEl.value||'').trim();if(!text||sending)return;msgs.push({role:'user',content:text});inEl.value='';sending=true;render();
-    try{var res=await fetch(ENDPOINT,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({source:SOURCE,messages:msgs})});
-      var d=await res.json().catch(function(){return{};});msgs.push({role:'assistant',content:d.reply||'Sorry — please try again, or book a one-on-one with Scott.'});}
-    catch(e){msgs.push({role:'assistant',content:'Connection hiccup — please try again.'});}
-    sending=false;render();}
-  sendEl.onclick=send;
-  inEl.addEventListener('keydown',function(e){if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();send();}});
+  var ENDPOINT="https://qfhfuesnjfuwfujhvgpa.supabase.co/functions/v1/assistant-chat";var SOURCE="dpa";var msgs=[{role:"assistant",content:"Hi! Have a question about buying or down payment help? Ask away."}];var open=false,sending=false;var root=document.getElementById('bsc-chat');var css=document.createElement('style');css.textContent="#bsc-btn{position:fixed;bottom:20px;right:20px;z-index:99999;width:56px;height:56px;border-radius:50%;background:#c9962b;color:#101415;border:none;cursor:pointer;box-shadow:0 8px 24px rgba(0,0,0,.35);font-size:22px;}"+"#bsc-panel{position:fixed;bottom:88px;right:20px;z-index:99999;width:min(380px,92vw);height:min(560px,75vh);background:#0b0f10;border:1px solid rgba(255,255,255,.12);border-radius:16px;box-shadow:0 16px 48px rgba(0,0,0,.5);display:none;flex-direction:column;overflow:hidden;font-family:Inter,system-ui,sans-serif;}"+"#bsc-panel.open{display:flex;}#bsc-head{padding:14px 18px;border-bottom:1px solid rgba(255,255,255,.1);background:#101415;}"+"#bsc-head .k{color:#c9962b;font-size:11px;font-weight:700;letter-spacing:.2em;text-transform:uppercase;}#bsc-head .t{color:#fff;font-size:14px;font-weight:700;margin-top:2px;}"+"#bsc-msgs{flex:1;overflow-y:auto;padding:14px;display:flex;flex-direction:column;gap:10px;}"+".bsc-m{max-width:85%;padding:10px 14px;border-radius:16px;font-size:14px;line-height:1.5;white-space:pre-wrap;}"+".bsc-u{align-self:flex-end;background:#c9962b;color:#101415;}.bsc-a{align-self:flex-start;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);color:#e8eef6;}"+"#bsc-foot{border-top:1px solid rgba(255,255,255,.1);padding:10px;}#bsc-row{display:flex;gap:8px;align-items:flex-end;}"+"#bsc-in{flex:1;min-height:42px;max-height:110px;resize:none;border-radius:10px;border:1px solid rgba(255,255,255,.15);background:#101415;color:#fff;padding:10px;font-size:14px;font-family:inherit;outline:none;}"+"#bsc-send{width:42px;height:42px;border:none;border-radius:10px;background:#c9962b;color:#101415;cursor:pointer;font-size:16px;}#bsc-send:disabled{opacity:.5;}"+"#bsc-disc{font-size:10px;color:rgba(232,238,246,.4);margin:6px 2px 0;line-height:1.4;}";document.head.appendChild(css);root.innerHTML='<button id="bsc-btn" aria-label="Chat">&#128172;</button><div id="bsc-panel"><div id="bsc-head"><div class="k">Buy &amp; Sell with Confidence</div><div class="t">Ask me anything</div></div><div id="bsc-msgs"></div><div id="bsc-foot"><div id="bsc-row"><textarea id="bsc-in" rows="1" placeholder="Type your question&hellip;"></textarea><button id="bsc-send">&#10148;</button></div><div id="bsc-disc">Educational only &mdash; not a loan approval, rate quote, or commitment to lend. NMLS #2244351 &middot; Equal Housing Opportunity.</div></div></div>';var btn=document.getElementById('bsc-btn'),panel=document.getElementById('bsc-panel'),msgsEl=document.getElementById('bsc-msgs'),inEl=document.getElementById('bsc-in'),sendEl=document.getElementById('bsc-send');function render(){msgsEl.innerHTML='';msgs.forEach(function(m){var d=document.createElement('div');d.className='bsc-m '+(m.role==='user'?'bsc-u':'bsc-a');d.textContent=m.content;msgsEl.appendChild(d);});if(sending){var t=document.createElement('div');t.className='bsc-m bsc-a';t.textContent='typing…';t.style.opacity=.6;msgsEl.appendChild(t);}msgsEl.scrollTop=msgsEl.scrollHeight;}btn.onclick=function(){open=!open;panel.classList.toggle('open',open);btn.innerHTML=open?'&#10005;':'&#128172;';if(open)render();};async function send(){var text=(inEl.value||'').trim();if(!text||sending)return;msgs.push({role:'user',content:text});inEl.value='';sending=true;render();try{var res=await fetch(ENDPOINT,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({source:SOURCE,messages:msgs})});var d=await res.json().catch(function(){return{};});msgs.push({role:'assistant',content:d.reply||'Sorry — please try again, or book a one-on-one with Scott.'});}catch(e){msgs.push({role:'assistant',content:'Connection hiccup — please try again.'});}sending=false;render();}sendEl.onclick=send;inEl.addEventListener('keydown',function(e){if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();send();}});
 })();
 </script>
 </body>
